@@ -9,16 +9,15 @@ import {
   setProductTypes,
   useProductTypeContext,
 } from "@/contexts/ProductTypeContext";
-import ProductTypeClient from "@/api/ProductTypeClient";
+import { fetchListProductType } from "@/api/ProductTypeClient";
 
 export default function SideBar() {
   const { productTypeState, dispatch } = useProductTypeContext();
 
   const fetchProductTypes = useCallback(async () => {
-    const productTypeClient = new ProductTypeClient();
     dispatch(loadingProductTypes());
 
-    const response = await productTypeClient.fetchList();
+    const response = await fetchListProductType();
     if (response.success) {
       dispatch(setProductTypes(response));
     } else {

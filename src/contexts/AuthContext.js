@@ -1,6 +1,7 @@
 "use client";
 import React, { createContext, useContext, useReducer, useEffect } from "react";
 import Cookies from "js-cookie";
+import { ACCESS_TOKEN, USER_INFO } from "@/api/Config";
 
 const AuthContext = createContext();
 
@@ -15,15 +16,15 @@ export const REFRESH_TOKEN = "REFRESH_TOKEN";
 export const SET_USER = "SET_USER";
 export const SET_TOKEN = "SET_TOKEN";
 
-export const loginUser = (user, token) => {
+export const login = (user, token) => {
   return { type: LOGIN_USER, payload: { user, token } };
 };
 
-export const registerUser = (user, token) => {
+export const register = (user, token) => {
   return { type: REGISTER_USER, payload: { user, token } };
 };
 
-export function logoutUser() {
+export function logout() {
   return { type: LOGOUT_USER };
 }
 
@@ -45,7 +46,6 @@ export function authReducer(state, action) {
   switch (action.type) {
     case REGISTER_USER:
     case LOGIN_USER:
-      console.log("esu");
       return {
         ...state,
         user: action.payload.user,
@@ -81,8 +81,8 @@ const AuthProvider = ({ children }) => {
   const authData = { state, dispatch };
 
   useEffect(() => {
-    const token = Cookies.get("accessToken");
-    const userInfo = localStorage.getItem("userInfo");
+    const token = Cookies.get(ACCESS_TOKEN);
+    const userInfo = localStorage.getItem(USER_INFO);
     if (token) {
       dispatch(setToken(token));
       dispatch(setUser(JSON.parse(userInfo)));

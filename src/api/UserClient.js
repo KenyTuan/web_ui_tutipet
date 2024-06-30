@@ -1,10 +1,19 @@
-import { PRODUCT_TYPE_URL, defaultHeaders } from "@/api/Config";
 import axios from "axios";
+import { USER_URL, headersWithAuthorization } from "./Config";
 
-export async function fetchListProductType() {
+export async function fetchList() {
   try {
-    const response = await axios.get(PRODUCT_TYPE_URL, {
-      headers: defaultHeaders(),
+    const response = await axios.get(USER_URL);
+    return { success: true, data: response.data };
+  } catch (error) {
+    return handleError(error);
+  }
+}
+
+export async function fetchByid(id) {
+  try {
+    const response = await axios.get(USER_URL + `/${id}`, {
+      headers: { ...headersWithAuthorization() },
     });
     return { success: true, data: response.data };
   } catch (error) {
@@ -12,10 +21,10 @@ export async function fetchListProductType() {
   }
 }
 
-export async function fetchProductTypeByid(prodId) {
+export async function updateUser(id, request) {
   try {
-    const response = await axios.get(PRODUCT_TYPE_URL + `/${prodId}`, {
-      headers: defaultHeaders(),
+    const response = await axios.put(USER_URL + `/${id}`, request, {
+      headers: { ...headersWithAuthorization() },
     });
     return { success: true, data: response.data };
   } catch (error) {
@@ -24,6 +33,7 @@ export async function fetchProductTypeByid(prodId) {
 }
 
 function handleError(error) {
+  this.clearTokens();
   let errMsg;
   if (axios.isAxiosError(error) && error.response) {
     errMsg =

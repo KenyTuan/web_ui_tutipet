@@ -11,7 +11,7 @@ import {
   setProducts,
   useProductContext,
 } from "@/contexts/ProductContext";
-import ProductClient from "@/api/ProductClient";
+import { fetchListProduct } from "@/api/ProductClient";
 import useSearchParams from "@/hook/useSearchParams";
 
 export default function ProductList() {
@@ -31,15 +31,9 @@ export default function ProductList() {
 
   const fetchProducts = useCallback(
     async (search, page, sortBy, sortOrder) => {
-      const productClient = new ProductClient();
       dispatch(loadingProducts());
 
-      const response = await productClient.fetchList(
-        search,
-        page,
-        sortBy,
-        sortOrder
-      );
+      const response = await fetchListProduct(search, page, sortBy, sortOrder);
       if (response.success) {
         dispatch(setProducts(response, page, search, sortBy, sortOrder));
       } else {

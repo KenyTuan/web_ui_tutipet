@@ -13,15 +13,17 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import React from "react";
+import React, { useState } from "react";
+import FormUpdateInfo from "./FormUpdateInfo";
 
 export default function InfoUser() {
   const { state, dispatch } = useAuthContext();
   const { isLoggedIn, user } = state;
+  const [open, setOpen] = useState(false);
 
   return (
     <>
-    
+      <FormUpdateInfo open={open} setOpen={setOpen} />
       <Paper elevation={3}>
         <Box sx={{ padding: 3 }}>
           <Typography variant="h5" fontWeight={700} align="center">
@@ -67,6 +69,7 @@ export default function InfoUser() {
                   <Button
                     size="medium"
                     variant="contained"
+                    onClick={() => setOpen(true)}
                     style={{ backgroundColor: "#FC9C55" }}
                   >
                     <Typography

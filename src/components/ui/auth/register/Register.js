@@ -23,8 +23,8 @@ import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import Visibility from "@mui/icons-material/Visibility";
 import Stack from "@mui/material/Stack";
 import Alert from "@mui/material/Alert";
-import { registerUser, useAuthContext } from "@/contexts/AuthContext";
-import Auth from "@/api/Auth";
+import { register, useAuthContext } from "@/contexts/AuthContext";
+import { registerUser } from "@/api/Auth";
 
 function Copyright(props) {
   return (
@@ -64,8 +64,7 @@ export default function Register() {
   const [formValid, setFormValid] = useState("");
   const [success, setSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const { state, dispatch } = useAuthContext();
-  const auth = new Auth();
+  const { dispatch } = useAuthContext();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -99,7 +98,7 @@ export default function Register() {
     event.preventDefault();
     if (validateForm()) {
       const { fullName, email, password, gender } = formState;
-      const response = await auth.registerUser({
+      const response = await registerUser({
         fullName,
         email,
         password,
@@ -107,7 +106,7 @@ export default function Register() {
       });
       if (response.success) {
         const { token, user } = response.data;
-        dispatch(registerUser(user, token));
+        dispatch(register(user, token));
         setSuccess("Registration successful!");
         router.push("/");
       } else {

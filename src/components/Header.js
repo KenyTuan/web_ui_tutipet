@@ -4,11 +4,11 @@ import Link from "next/link";
 import Image from "next/image";
 import clsx from "clsx";
 import { usePathname, useRouter } from "next/navigation";
-import { logoutUser, useAuthContext } from "@/contexts/AuthContext";
-import Auth from "@/api/Auth";
+import { logout, useAuthContext } from "@/contexts/AuthContext";
+import { logoutUser } from "@/api/Auth";
 import { setLoadingFail, useProductContext } from "@/contexts/ProductContext";
 import { loadingCarts, setCarts, useCartContext } from "@/contexts/CartContext";
-import CartClient from "@/api/CartClient";
+import { getList } from "@/api/CartClient";
 import { Box, SpeedDial, SpeedDialAction } from "@mui/material";
 import { AccountBox, ListAlt, Person, Visibility } from "@mui/icons-material";
 
@@ -33,20 +33,17 @@ export default function Header() {
   const { isLoggedIn, user } = state;
   const { cartList } = cartState;
 
-  const logout = () => {
-    const auth = new Auth();
-    auth.logoutUser();
-    dispatch(logoutUser());
+  const handleLogout = () => {
+    logoutUser();
+    dispatch(logout());
   };
 
   console.log("user", user);
 
   const fetchCart = useCallback(async () => {
-    const auth = new Auth();
-    const cartClient = new CartClient(auth);
     if (isLoggedIn) {
       dispatchCart(loadingCarts());
-      const response = await cartClient.getList();
+      const response = await getList();
       if (response.success) {
         dispatchCart(setCarts(response));
       } else {
@@ -113,7 +110,7 @@ export default function Header() {
           </Link>
           {isLoggedIn ? (
             <button
-              onClick={logout}
+              onClick={handleLogout}
               className="flex justify-center items-center rounded-md mx-2"
             >
               <span className="text-sm font-semibold uppercase text-black md:text-lg">

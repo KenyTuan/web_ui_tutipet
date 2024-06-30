@@ -11,9 +11,8 @@ import {
   Typography,
 } from "@mui/material";
 import { useRouter } from "next/navigation";
-import CartClient from "@/api/CartClient";
+import { addOrUpdate } from "@/api/CartClient";
 import { updateCart, useCartContext } from "@/contexts/CartContext";
-import Auth from "@/api/Auth";
 import { useAuthContext } from "@/contexts/AuthContext";
 import DiaLog from "@/components/DiaLog";
 import AlertNotication from "@/components/AlertNotication";
@@ -23,8 +22,6 @@ export default function CardProduct({ product }) {
   const [success, setSuccess] = useState(false);
   const [severity, setSeverity] = useState("success");
   const [open, setOpen] = useState(false);
-  const auth = new Auth();
-  const cartClient = new CartClient(auth);
   const { cartState, dispatchCart } = useCartContext();
   const { state } = useAuthContext();
   const { isLoggedIn } = state;
@@ -33,7 +30,7 @@ export default function CardProduct({ product }) {
 
   const callAddItemApi = async () => {
     const qty = findQty(product.id);
-    return cartClient.addOrUpdate({
+    return addOrUpdate({
       productId: product.id,
       quantity: qty + 1,
     });

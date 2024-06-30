@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   Box,
   Typography,
@@ -14,17 +14,12 @@ import ItemCart from "./ItemCart";
 import { useRouter } from "next/navigation";
 import {
   checkAllItems,
-  loadingCarts,
-  setCarts,
-  setLoadingFail,
   toggleCheckItem,
   uncheckAllItems,
   useCartContext,
 } from "@/contexts/CartContext";
 import { useAuthContext } from "@/contexts/AuthContext";
 import DiaLog from "@/components/DiaLog";
-import CartClient from "@/api/CartClient";
-import Auth from "@/api/Auth";
 import AlertNotication from "@/components/AlertNotication";
 
 export default function ShoppingCart() {
@@ -34,8 +29,6 @@ export default function ShoppingCart() {
   const [message, setMessage] = useState("");
   const [warning, setWarning] = useState(false);
   const [title, setTilte] = useState("");
-  const auth = new Auth();
-  const cartClient = new CartClient(auth);
   const { cartState, dispatchCart } = useCartContext();
   const { cartList, loading, error } = cartState;
   const { state } = useAuthContext();
@@ -205,7 +198,6 @@ export default function ShoppingCart() {
                 checked={item.checked}
                 isLoggedIn={isLoggedIn}
                 setOpen={setOpen}
-                cartClient={cartClient}
                 dispatchCart={dispatchCart}
                 setMessage={setMessage}
                 setTilte={setTilte}

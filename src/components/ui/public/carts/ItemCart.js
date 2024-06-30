@@ -16,6 +16,7 @@ import {
 } from "@mui/material";
 import { Add, Remove } from "@mui/icons-material";
 import { removeItem, setQuantity } from "@/contexts/CartContext";
+import { addOrUpdate, remove } from "@/api/CartClient";
 
 export default function ItemCart({
   cartItem,
@@ -23,7 +24,6 @@ export default function ItemCart({
   handleCheckboxChange,
   isLoggedIn,
   setOpen,
-  cartClient,
   dispatchCart,
   setMessage,
   setTilte,
@@ -32,7 +32,7 @@ export default function ItemCart({
   const [isClicked, setClicked] = useState(false);
 
   const updateQuantity = useCallback(async () => {
-    const res = await cartClient.addOrUpdate({
+    const res = await addOrUpdate({
       quantity: cartItem.quantity,
       productId: cartItem.product.id,
     });
@@ -43,13 +43,7 @@ export default function ItemCart({
       console.log(item);
       dispatchCart(setQuantity(item));
     }
-  }, [
-    cartClient,
-    cartItem.id,
-    cartItem.product.id,
-    dispatchCart,
-    cartItem.quantity,
-  ]);
+  }, [cartItem.id, cartItem.product.id, dispatchCart, cartItem.quantity]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -108,7 +102,7 @@ export default function ItemCart({
       );
       return;
     }
-    const res = await cartClient.remove(cartItem.product.id);
+    const res = await remove(cartItem.product.id);
     if (res && res.success) {
       dispatchCart(removeItem(cartItem.id));
     }

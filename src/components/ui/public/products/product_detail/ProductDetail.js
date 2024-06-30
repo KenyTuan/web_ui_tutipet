@@ -15,13 +15,12 @@ import {
 } from "@mui/material";
 import { TabContext, TabList, TabPanel } from "@mui/lab";
 import { useProductContext } from "@/contexts/ProductContext";
-import Auth from "@/api/Auth";
-import CartClient from "@/api/CartClient";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { updateCart, useCartContext } from "@/contexts/CartContext";
 import { useRouter } from "next/navigation";
 import DiaLog from "@/components/DiaLog";
 import AlertNotication from "@/components/AlertNotication";
+import { addOrUpdate } from "@/api/CartClient";
 
 export default function ProductDetail({ pathParam }) {
   const router = useRouter();
@@ -36,8 +35,6 @@ export default function ProductDetail({ pathParam }) {
   const { isLoggedIn } = state;
   const { cartList } = cartState;
   const { productList, page } = productState;
-  const auth = new Auth();
-  const cartClient = new CartClient(auth);
 
   const product = productList[page]?.data.filter(
     (item) => item.name == decodeURIComponent(pathParam)
@@ -47,7 +44,7 @@ export default function ProductDetail({ pathParam }) {
 
   const callAddItemApi = async () => {
     const qty = findQty(product.id);
-    return cartClient.addOrUpdate({
+    return addOrUpdate({
       productId: product.id,
       quantity: qty + 1,
     });

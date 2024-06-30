@@ -1,3 +1,5 @@
+import { fetchByid, updateUser } from "@/api/UserClient";
+import { setUser, useAuthContext } from "@/contexts/AuthContext";
 import {
   Box,
   Button,
@@ -12,11 +14,39 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 export default function FormUpdateInfo({ open, setOpen }) {
-  const [gender, setGender] = useState("");
+  const { state, dispatch } = useAuthContext();
+  const { isLoggedIn, user } = state;
+
   const [error, setError] = useState("");
+  const [gender, setGender] = useState(user?.gender);
+  const [fullName, setFullName] = useState(user?.name);
+
+  useEffect(() => {
+    setGender(user?.gender);
+    setFullName(user?.name);
+  }, [user?.name, user?.gender]);
+
+  const handleAccept = () => {
+    if (!fullName) {
+      setError("vui lòng nhập họ tên!");
+      return;
+    }
+    if (fullName.length < 5) {
+      setError("họ tên phải gồm 5 ký tự trở lên!");
+      return;
+    }
+    updateUser(user.id, { gender, fullName, email: user.email })
+      .then(() => fetchByid(user.id))
+      .then((res) => {
+        dispatch(
+          setUser({ ...user, name: res.data.name, gender: res.data.gender })
+        );
+        setOpen(false);
+      });
+  };
 
   return (
     <>
@@ -28,7 +58,7 @@ export default function FormUpdateInfo({ open, setOpen }) {
           aria-describedby="alert-dialog-description"
         >
           <DialogTitle fontWeight={"bold"}>
-            {"Nhập Thông Tin Người Dùng"}
+            {"Cập Nhật Thông Tin Người Dùng"}
           </DialogTitle>
           <Box height={10} />
           <DialogContent>
@@ -41,12 +71,12 @@ export default function FormUpdateInfo({ open, setOpen }) {
               <Grid container spacing={2}>
                 <Grid item xs={12}>
                   <FormControl fullWidth>
-                    <Select displayEmpty value={gender}>
-                      <MenuItem value="">
-                        <em>Chọn Giới Tính</em>
-                      </MenuItem>
-                      <MenuItem value="1">Nam</MenuItem>
-                      <MenuItem value="0">Nữ</MenuItem>
+                    <Select
+                      value={gender || -1}
+                      onChange={(e) => setGender(e.target.value)}
+                    >
+                      <MenuItem value={true}>Nam</MenuItem>
+                      <MenuItem value={false}>Nữ</MenuItem>
                     </Select>
                   </FormControl>
                 </Grid>
@@ -54,19 +84,11 @@ export default function FormUpdateInfo({ open, setOpen }) {
                   <TextField
                     variant="outlined"
                     size="small"
-                    label="Số nhà/Tên đường"
-                    value={address}
-                    onChange={handleAddressChange}
-                    fullWidth
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    variant="outlined"
-                    size="small"
-                    label="Số Điện Thoại"
-                    value={phone}
-                    onChange={handlePhoneChange}
+                    label="Họ và tên"
+                    value={fullName || ""}
+                    onChange={(e) => {
+                      setFullName(e.target.value);
+                    }}
                     fullWidth
                   />
                 </Grid>

@@ -17,8 +17,8 @@ import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import Visibility from "@mui/icons-material/Visibility";
 import { Alert, Link, OutlinedInput, Stack } from "@mui/material";
 import { useRouter } from "next/navigation";
-import { loginUser, logoutUser, useAuthContext } from "@/contexts/AuthContext";
-import Auth from "@/api/Auth";
+import { login, useAuthContext } from "@/contexts/AuthContext";
+import { loginUser } from "@/api/Auth";
 
 const defaultTheme = createTheme();
 
@@ -35,8 +35,7 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [formValid, setFormValid] = useState("");
   const [success, setSuccess] = useState(false);
-  const { state, dispatch } = useAuthContext();
-  const auth = new Auth();
+  const { dispatch } = useAuthContext();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -69,13 +68,13 @@ export default function Login() {
     event.preventDefault();
     if (validateForm()) {
       const { email, password } = formState;
-      const response = await auth.loginUser({
+      const response = await loginUser({
         email,
         password,
       });
       if (response.success) {
         const { token, user } = response.data;
-        dispatch(loginUser(user, token));
+        dispatch(login(user, token));
         setSuccess("Login successful!");
         router.push("/");
       } else {
@@ -95,7 +94,7 @@ export default function Login() {
           md={7}
           sx={{
             backgroundImage:
-              "url(https://source.unsplash.com/random?wallpapers)",
+              "url(https://bestcargo.vn/wp-content/uploads/2022/12/Hinh-anh-van-chuyen-thu-cung.jpg)",
             backgroundRepeat: "no-repeat",
             backgroundColor: (t) =>
               t.palette.mode === "light"
