@@ -2,12 +2,14 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import {
   ACCESS_TOKEN,
+  ACC_URL,
   EXPIRATION,
   LOGIN_URL,
   REGISTER_URL,
   defaultHeaders,
   storeAccessToken,
   storeUserInfo,
+  headersWithAuthorization,
 } from "./Config";
 
 export async function loginUser(request) {
@@ -68,8 +70,20 @@ export async function logoutUser() {
   }
 }
 
+export async function updateProfile(request) {
+  try {
+    const response = await axios.put(ACC_URL + `/update-profile`, request, {
+      headers: { ...headersWithAuthorization() },
+    });
+    return { success: true, data: response.data };
+  } catch (error) {
+    console.log(error);
+    return handleError(error);
+  }
+}
+
 function handleError(error) {
-  clearTokens();
+  // clearTokens();
   let errMsg;
   if (axios.isAxiosError(error) && error.response) {
     errMsg =

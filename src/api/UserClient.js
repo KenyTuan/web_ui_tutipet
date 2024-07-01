@@ -10,7 +10,7 @@ export async function fetchList() {
   }
 }
 
-export async function fetchByid(id) {
+export async function fetchUserByid(id) {
   try {
     const response = await axios.get(USER_URL + `/${id}`, {
       headers: { ...headersWithAuthorization() },
@@ -33,7 +33,6 @@ export async function updateUser(id, request) {
 }
 
 function handleError(error) {
-  this.clearTokens();
   let errMsg;
   if (axios.isAxiosError(error) && error.response) {
     errMsg =

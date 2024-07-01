@@ -5,6 +5,7 @@ const HOST = process.env.HOST ? process.env.HOST : "localhost";
 const PORT = process.env.PORT ? process.env.PORT : "8080";
 export const LOGIN_URL = `${SCHEME}://${HOST}:${PORT}/api/v1/auth/authenticate`;
 export const REGISTER_URL = `${SCHEME}://${HOST}:${PORT}/api/v1/auth/register`;
+export const ACC_URL = `${SCHEME}://${HOST}:${PORT}/api/v1/auth`;
 export const PRODUCT_URL = `${SCHEME}://${HOST}:${PORT}/api/v1/products`;
 export const PRODUCT_TYPE_URL = `${SCHEME}://${HOST}:${PORT}/api/v1/types`;
 export const CART_URL = `${SCHEME}://${HOST}:${PORT}/api/v1/carts`;

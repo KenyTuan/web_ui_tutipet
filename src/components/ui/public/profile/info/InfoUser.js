@@ -1,29 +1,79 @@
 "use client";
-import { useAuthContext } from "@/contexts/AuthContext";
+import { setUser, useAuthContext } from "@/contexts/AuthContext";
 import {
   Box,
   Button,
   Divider,
-  FormControl,
+  FormControlLabel,
   Grid,
-  MenuItem,
   Paper,
-  Select,
+  Radio,
+  RadioGroup,
   Stack,
   TextField,
   Typography,
 } from "@mui/material";
-import React, { useState } from "react";
-import FormUpdateInfo from "./FormUpdateInfo";
+import React, { use, useEffect, useState } from "react";
+import { fetchUserByid, updateUser } from "@/api/UserClient";
+import { storeUserInfo } from "@/api/Config";
+import AlertNotication from "@/components/AlertNotication";
+import { updateProfile } from "@/api/Auth";
 
 export default function InfoUser() {
   const { state, dispatch } = useAuthContext();
-  const { isLoggedIn, user } = state;
-  const [open, setOpen] = useState(false);
+  const { user } = state;
+  const [success, setSuccess] = useState(false);
+  const [modified, setModified] = useState(false);
+  const [gender, setGender] = useState(user?.gender ?? "FEMALE");
+  const [fullName, setFullName] = useState(user?.fullName);
+  const [message, setMessage] = useState("");
+  const [fullNameError, setFullNameError] = useState(false);
+
+  useEffect(() => {
+    setGender(user?.gender);
+    setFullName(user?.fullName);
+  }, [user?.fullName, user?.gender]);
+
+  const handleFullNameChange = (e) => {
+    setFullName(e.target.value);
+    if (e.target.validity.valid) {
+      setFullNameError(false);
+    } else {
+      setFullNameError(true);
+    }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (e.target.checkValidity()) {
+      updateProfile({ gender, fullName })
+        .then(() => fetchUserByid(user.id))
+        .then((res) => {
+          dispatch(
+            setUser({
+              ...user,
+              fullName: res.data.fullName,
+              gender: res.data.gender,
+            })
+          );
+          storeUserInfo(res.data);
+          setMessage("Đã cập nhật thành công!");
+          setSuccess(true);
+        });
+    } else {
+      setMessage("Vui lòng kiểm tra lại!");
+      setSuccess(false);
+    }
+  };
 
   return (
     <>
-      <FormUpdateInfo open={open} setOpen={setOpen} />
+      <AlertNotication
+        severity={success ? "success" : "error"}
+        setSuccess={setSuccess}
+        success={success}
+        message={message}
+      />
       <Paper elevation={3}>
         <Box sx={{ padding: 3 }}>
           <Typography variant="h5" fontWeight={700} align="center">
@@ -31,25 +81,14 @@ export default function InfoUser() {
           </Typography>
           <Box height={10} />
           <Divider />
-          <Box sx={{ padding: 3 }}>
+          <Box
+            sx={{ padding: 3 }}
+            component={"form"}
+            onSubmit={handleSubmit}
+            noValidate
+          >
             <Grid container spacing={2}>
               <Grid item xs={6} display={"flex"} flexDirection={"row"}>
-                <Typography variant="body1" fontWeight={"bold"} paddingX={1}>
-                  Họ Tên:
-                </Typography>
-                <Typography variant="body1" fontStyle={"italic"} paddingX={1}>
-                  {user?.name}
-                </Typography>
-              </Grid>
-              <Grid item xs={6} display={"flex"} flexDirection={"row"}>
-                <Typography variant="body1" fontWeight={"bold"} paddingX={1}>
-                  Giới Tính:
-                </Typography>
-                <Typography variant="body1" fontStyle={"italic"} paddingX={1}>
-                  {user?.gender ? "Nam" : "Nữ"}
-                </Typography>
-              </Grid>
-              <Grid item xs={12} display={"flex"} flexDirection={"row"}>
                 <Typography variant="body1" fontWeight={"bold"} paddingX={1}>
                   Email:
                 </Typography>
@@ -57,6 +96,66 @@ export default function InfoUser() {
                   {user?.email}
                 </Typography>
               </Grid>
+              <Grid item xs={6} display={"flex"} flexDirection={"row"}>
+                <Typography variant="body1" fontWeight={"bold"} paddingX={1}>
+                  Họ Tên:
+                </Typography>
+                {!modified ? (
+                  <>
+                    <Typography
+                      variant="body1"
+                      fontStyle={"italic"}
+                      paddingX={1}
+                    >
+                      {user?.fullName}
+                    </Typography>
+                    <Button variant="text" onClick={() => setModified(true)}>
+                      thay đổi
+                    </Button>
+                  </>
+                ) : (
+                  <TextField
+                    required
+                    variant="outlined"
+                    size="small"
+                    value={fullName || ""}
+                    onChange={handleFullNameChange}
+                    error={fullNameError}
+                    inputProps={{
+                      pattern: "^[a-zA-ZÀ-ỹ\\s]{5,}$",
+                      style: {
+                        padding: "2px 8px",
+                        fontSize: "16px",
+                      },
+                    }}
+                    color={fullNameError ? "error" : "success"}
+                    helperText={fullNameError ? "Vui lòng nhập họ tên!" : ""}
+                  />
+                )}
+              </Grid>
+              <Grid item xs={6} display={"flex"} flexDirection={"row"}>
+                <Typography variant="body1" fontWeight={"bold"} paddingX={1}>
+                  Giới Tính:
+                </Typography>
+                <RadioGroup
+                  name="gender"
+                  row
+                  value={gender || "FEMALE"}
+                  onChange={(e) => setGender(e.target.value)}
+                >
+                  <FormControlLabel
+                    value={"FEMALE"}
+                    control={<Radio />}
+                    label="Nữ"
+                  />
+                  <FormControlLabel
+                    value={"MALE"}
+                    control={<Radio />}
+                    label="Nam"
+                  />
+                </RadioGroup>
+              </Grid>
+
               <Grid item xs={12}>
                 <Stack
                   display={"flex"}
@@ -69,7 +168,7 @@ export default function InfoUser() {
                   <Button
                     size="medium"
                     variant="contained"
-                    onClick={() => setOpen(true)}
+                    type="submit"
                     style={{ backgroundColor: "#FC9C55" }}
                   >
                     <Typography

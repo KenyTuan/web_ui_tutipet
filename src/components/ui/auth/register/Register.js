@@ -53,7 +53,7 @@ export default function Register() {
     email: "",
     password: "",
     confirmPassword: "",
-    gender: "0",
+    gender: "MALE",
   });
   const [formErrors, setFormErrors] = useState({
     fullName: "",
@@ -102,7 +102,7 @@ export default function Register() {
         fullName,
         email,
         password,
-        gender: gender === "1",
+        gender: gender,
       });
       if (response.success) {
         const { token, user } = response.data;
@@ -168,12 +168,12 @@ export default function Register() {
                     onChange={handleChange}
                   >
                     <FormControlLabel
-                      value="0"
+                      value={"FEMALE"}
                       control={<Radio />}
                       label="Nữ"
                     />
                     <FormControlLabel
-                      value="1"
+                      value={"MALE"}
                       control={<Radio />}
                       label="Nam"
                     />
