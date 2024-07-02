@@ -56,10 +56,15 @@ const initialState = {
 };
 
 export const ProductTypeProvider = ({ children }) => {
-  const [productTypeState, dispatch] = useReducer(productReducer, initialState);
+  const [productTypeState, dispatchProductType] = useReducer(
+    productReducer,
+    initialState
+  );
 
   return (
-    <ProductTypeContext.Provider value={{ productTypeState, dispatch }}>
+    <ProductTypeContext.Provider
+      value={{ productTypeState, dispatchProductType }}
+    >
       {children}
     </ProductTypeContext.Provider>
   );

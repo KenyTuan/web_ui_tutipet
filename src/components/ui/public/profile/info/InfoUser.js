@@ -13,8 +13,8 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import React, { use, useEffect, useState } from "react";
-import { fetchUserByid, updateUser } from "@/api/UserClient";
+import React, { useEffect, useState } from "react";
+import { fetchUserByid } from "@/api/UserClient";
 import { storeUserInfo } from "@/api/Config";
 import AlertNotication from "@/components/AlertNotication";
 import { updateProfile } from "@/api/Auth";

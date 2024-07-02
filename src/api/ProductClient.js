@@ -1,13 +1,19 @@
-import { PRODUCT_URL, defaultHeaders } from "@/api/Config";
+import {
+  PRODUCT_URL,
+  defaultHeaders,
+  headersWithAuthorization,
+} from "@/api/Config";
 import axios from "axios";
 
-const size = 5;
-
-export async function fetchListProduct(keySearch, page, sortBy, sortOrder) {
+export async function fetchListProduct(
+  keySearch,
+  page,
+  sortBy = "",
+  sortOrder = "",
+  size = 5
+) {
   try {
-    const queryParams = `?keySearch=${keySearch}&page=${
-      page - 1
-    }&size=${size}&sortBy=${sortBy}&sortDir=${sortOrder}`;
+    const queryParams = `?keySearch=${keySearch}&page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortOrder}`;
     const response = await axios.get(PRODUCT_URL + `/search${queryParams}`, {
       headers: defaultHeaders(),
     });
@@ -27,6 +33,48 @@ export async function fetchByid(prodId) {
     console.log("Response JSON: " + JSON.stringify(response.data));
     return { success: true, data: response.data };
   } catch (error) {
+    return handleError(error);
+  }
+}
+
+export async function addProduct(req) {
+  console.log("Fetching product for Id: " + req);
+  try {
+    const response = await axios.post(PRODUCT_URL, req, {
+      headers: headersWithAuthorization(),
+    });
+    console.log("Response JSON: " + JSON.stringify(response.data));
+    return { success: true, data: response.data };
+  } catch (error) {
+    console.error("Error add product", error);
+    return handleError(error);
+  }
+}
+
+export async function updateProduct(req) {
+  console.log("Fetching product for Id: " + req);
+  try {
+    const response = await axios.put(PRODUCT_URL, req, {
+      headers: headersWithAuthorization(),
+    });
+    console.log("Response JSON: " + JSON.stringify(response.data));
+    return { success: true, data: response.data };
+  } catch (error) {
+    console.error("Error add product", error);
+    return handleError(error);
+  }
+}
+
+export async function deleteProduct(id) {
+  console.log("Fetching product for Id: " + id);
+  try {
+    const response = await axios.delete(PRODUCT_URL + `/${id}`, {
+      headers: headersWithAuthorization(),
+    });
+    console.log("Response JSON: " + JSON.stringify(response.data));
+    return { success: true, data: response.data };
+  } catch (error) {
+    console.error("Error add product", error);
     return handleError(error);
   }
 }

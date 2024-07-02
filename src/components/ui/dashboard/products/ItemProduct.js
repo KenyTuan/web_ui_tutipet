@@ -1,32 +1,56 @@
-import React from "react";
+"use client";
+import React, { useState } from "react";
 import TableCell from "@mui/material/TableCell";
-import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
-import {
-  Autocomplete,
-  Box,
-  Button,
-  CardActionArea,
-  CardMedia,
-  Divider,
-  Modal,
-  Stack,
-  TextField,
-  Typography,
-} from "@mui/material";
-import { AddCircle, Delete, Edit, Visibility } from "@mui/icons-material";
+import { Button, CardActionArea, CardMedia, Stack } from "@mui/material";
+import { Delete, Edit } from "@mui/icons-material";
+import FormUpdateProduct from "./FormUpdateProduct";
+import AlertNotication from "@/components/AlertNotication";
+import { deleteProduct } from "@/api/ProductClient";
+import { setProduct, useProductContext } from "@/contexts/ProductContext";
 
 export default function ItemProduct({ row }) {
+  const { dispatch } = useProductContext();
+  const [open, setOpen] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [message, setMessage] = useState("");
+  const [severity, setSeverity] = useState("success");
+  const handleCloseUpdate = () => setOpen(false);
+  const handleOpenUpdate = () => setOpen(true);
+
+  const handleClickDeleted = (item) => {
+    deleteProduct(item.id).then((res) => {
+      dispatch(setProduct(res));
+      setMessage("Đã xóa thành công!");
+      setSeverity("success");
+      setSuccess(true);
+    });
+  };
+
   return (
     <>
+      <AlertNotication
+        severity={severity}
+        setSuccess={setSuccess}
+        success={success}
+        message={message}
+      />
+      <FormUpdateProduct
+        item={row}
+        open={open}
+        handleClose={handleCloseUpdate}
+        setSuccess={setSuccess}
+        setMessage={setMessage}
+        setSeverity={setSeverity}
+      />
       <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
         <TableCell key={"id"} align={"center"} className="border-r-2">
           {row.id}
         </TableCell>
-        <TableCell key={"name"} align={"center"} className="border-r-2">
+        <TableCell key={"img"} align={"center"} className="border-r-2">
           <CardActionArea>
             <CardMedia
-              src={row.img}
+              src={row?.image ?? "/product.jpg"}
               component="img"
               height={12}
               style={{ height: "8rem", objectFit: "contain" }}
@@ -35,37 +59,28 @@ export default function ItemProduct({ row }) {
           </CardActionArea>
         </TableCell>
         <TableCell key={"name"} align={"center"} className="border-r-2">
-          {row.name}
+          {row?.name}
         </TableCell>
         <TableCell key={"type"} align={"center"} className="border-r-2">
-          {row.type.name}
+          {row?.type?.name}
         </TableCell>
         <TableCell key={"pet"} align={"center"} className="border-r-2">
-          {row.type.petTypes === "CAT" ? "Mèo" : "Chó"}
+          {row?.type?.petTypes === "CAT" ? "Mèo" : "Chó"}
         </TableCell>
         <TableCell key={"price"} align={"center"} className="border-r-2">
-          {row.price.toLocaleString("en-US", {
+          {(row?.price ?? 0).toLocaleString("en-US", {
             style: "decimal",
             minimumFractionDigits: 3,
             maximumFractionDigits: 3,
           })}{" "}
           VND
         </TableCell>
-        <TableCell key={"price"} align={"center"} className="border-r-2">
-          {!!row.promotion
-            ? (row.promotion.discountType === "PERCENTAGE"
-                ? row.price - row.price * row.promotion.value
-                : row.price - row.promotion.value
-              ).toLocaleString("en-US", {
-                style: "decimal",
-                minimumFractionDigits: 3,
-                maximumFractionDigits: 3,
-              })
-            : row.price.toLocaleString("en-US", {
-                style: "decimal",
-                minimumFractionDigits: 3,
-                maximumFractionDigits: 3,
-              })}{" "}
+        <TableCell key={"discount"} align={"center"} className="border-r-2">
+          {(row?.price ?? 0).toLocaleString("en-US", {
+            style: "decimal",
+            minimumFractionDigits: 3,
+            maximumFractionDigits: 3,
+          })}{" "}
           VND
         </TableCell>
         <TableCell key={"status"} align={"center"} className="border-r-2">
@@ -73,17 +88,11 @@ export default function ItemProduct({ row }) {
             <Button
               variant="contained"
               className="bg-green-500 hover:bg-green-600 text-sm"
-              onClick={() => updateEnableByID(row.id, true)}
             >
               Hiện
             </Button>
           ) : (
-            <Button
-              variant="outlined"
-              onClick={() => updateEnableByID(row.id, false)}
-            >
-              Ẩn
-            </Button>
+            <Button variant="outlined">Ẩn</Button>
           )}
         </TableCell>
         <TableCell key={"action"} align="left" className="border-r-2">
@@ -95,7 +104,7 @@ export default function ItemProduct({ row }) {
                 cursor: "pointer",
               }}
               className="cursor-pointer"
-              onClick={() => handleEditProduct(row)}
+              onClick={handleOpenUpdate}
             />
             <Delete
               style={{
@@ -103,9 +112,7 @@ export default function ItemProduct({ row }) {
                 color: "darkred",
                 cursor: "pointer",
               }}
-              onClick={() => {
-                deleteProductByID(row.id);
-              }}
+              onClick={() => handleClickDeleted(row)}
             />
           </Stack>
         </TableCell>

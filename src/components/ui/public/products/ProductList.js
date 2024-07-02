@@ -33,7 +33,12 @@ export default function ProductList() {
     async (search, page, sortBy, sortOrder) => {
       dispatch(loadingProducts());
 
-      const response = await fetchListProduct(search, page, sortBy, sortOrder);
+      const response = await fetchListProduct(
+        search,
+        page - 1,
+        sortBy,
+        sortOrder
+      );
       if (response.success) {
         dispatch(setProducts(response, page, search, sortBy, sortOrder));
       } else {

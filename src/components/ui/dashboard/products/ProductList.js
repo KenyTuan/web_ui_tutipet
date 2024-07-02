@@ -20,6 +20,26 @@ import Board from "@/components/ui/dashboard/Board";
 import { AddCircle, Delete, Edit, Visibility } from "@mui/icons-material";
 import { useState } from "react";
 import ItemProduct from "./ItemProduct";
+import {
+  loadingProducts,
+  setLoadingFail,
+  setProducts,
+  setRowPage,
+  useProductContext,
+} from "@/contexts/ProductContext";
+import { fetchListProduct } from "@/api/ProductClient";
+import { useEffect } from "react";
+import useSearchParams from "@/hook/useSearchParams";
+import FormAddProduct from "./FormAddProduct";
+import {
+  loadingFail,
+  loadingProductTypes,
+  setProductTypes,
+  useProductTypeContext,
+} from "@/contexts/ProductTypeContext";
+import { fetchListProductType } from "@/api/ProductTypeClient";
+import { useCallback } from "react";
+import AlertNotication from "@/components/AlertNotication";
 // import Swal from "sweetalert2";
 // import AddForm from "./AddForm";
 // import EditForm from "./EditForm";
@@ -50,21 +70,99 @@ const columns = [
 ];
 
 export default function ProductList() {
-  const [data, setData] = useState([]);
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [searchParams, updateSearchParams] = useSearchParams();
+  const initialPage = parseInt(searchParams.page) || 0;
+  const [page, setPage] = useState(initialPage);
+  const [search, setSearch] = useState("");
+  const { productState, dispatch } = useProductContext();
+  const { productList, row_page, loading, error } = productState;
+  const [totalElements, setTotalElements] = useState(0);
+  const { productTypeState, dispatchProductType } = useProductTypeContext();
+  const [open, setOpen] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [message, setMessage] = useState("");
+  const [severity, setSeverity] = useState("success");
+
+  const fetchProducts = React.useCallback(
+    async (search, page, rowsPerPage) => {
+      dispatch(loadingProducts());
+
+      const response = await fetchListProduct(
+        search,
+        page,
+        "id",
+        "",
+        rowsPerPage
+      );
+      if (response.success) {
+        dispatch(setProducts(response, page, search));
+        setTotalElements(response.data.totalElements);
+      } else {
+        dispatch(setLoadingFail(response));
+      }
+    },
+    [dispatch]
+  );
+
+  const fetchProductTypes = useCallback(async () => {
+    dispatchProductType(loadingProductTypes());
+
+    const response = await fetchListProductType();
+    if (response.success) {
+      dispatchProductType(setProductTypes(response));
+    } else {
+      dispatchProductType(loadingFail(response));
+    }
+  }, [dispatchProductType]);
+
+  useEffect(() => {
+    fetchProductTypes();
+  }, [fetchProductTypes]);
+
+  useEffect(() => {
+    const currentPageData = productState.productList[page];
+    if (
+      !currentPageData ||
+      Date.now() - currentPageData.timestamp > 300000 ||
+      currentPageData?.search !== search
+    ) {
+      fetchProducts(search, page, row_page);
+    }
+  }, [fetchProducts, page, productState.productList, row_page, search]);
 
   const handleChangePage = (event, newPage) => {
+    updateSearchParams({ page: newPage });
     setPage(newPage);
   };
 
   const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(+event.target.value);
+    dispatch(setRowPage(+event.target.value));
     setPage(0);
   };
 
+  const handleOpenAdd = () => {
+    setOpen(true);
+  };
+
+  const handleCloseAdd = () => setOpen(false);
+
+  const currentPageData = productList[page] ? productList[page].data : [];
+
   return (
     <>
+      <AlertNotication
+        severity={severity}
+        setSuccess={setSuccess}
+        success={success}
+        message={message}
+      />
+      <FormAddProduct
+        open={open}
+        handleClose={handleCloseAdd}
+        setSuccess={setSuccess}
+        setMessage={setMessage}
+        setSeverity={setSeverity}
+      />
       <Paper sx={{ width: "100%" }}>
         <Typography
           gutterBottom
@@ -81,9 +179,9 @@ export default function ProductList() {
           <Autocomplete
             disablePortal
             id="combo-box-demo"
-            options={data}
+            options={[]}
             sx={{ width: "40%" }}
-            onChange={(e, v) => filterData(v)}
+            // onChange={(e, v) => filterData(v)}
             getOptionLabel={(rows) => rows.name || ""}
             renderInput={(params) => (
               <TextField {...params} size="small" label="Search Products" />
@@ -98,23 +196,22 @@ export default function ProductList() {
             variant="contained"
             endIcon={<AddCircle />}
             className="bg-blue-500"
-            // onClick={handleOpenAdd}
+            onClick={handleOpenAdd}
           >
             Thêm Sản Phẩm
           </Button>
         </Stack>
         <Box height={25} />
         <Board columns={columns}>
-          {data.length != 0 &&
-            data
-              ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((row, index) => <ItemProduct row={row} key={index} />)}
+          {currentPageData?.map((row) => (
+            <ItemProduct row={row} key={row.id} />
+          ))}
         </Board>
         <TablePagination
-          rowsPerPageOptions={[10, 25, 100]}
+          rowsPerPageOptions={[5, 10, 25, 100]}
           component="div"
-          count={data.length}
-          rowsPerPage={rowsPerPage}
+          count={totalElements}
+          rowsPerPage={row_page}
           page={page}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}

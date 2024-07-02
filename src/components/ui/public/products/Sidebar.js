@@ -12,18 +12,18 @@ import {
 import { fetchListProductType } from "@/api/ProductTypeClient";
 
 export default function SideBar() {
-  const { productTypeState, dispatch } = useProductTypeContext();
+  const { productTypeState, dispatchProductType } = useProductTypeContext();
 
   const fetchProductTypes = useCallback(async () => {
-    dispatch(loadingProductTypes());
+    dispatchProductType(loadingProductTypes());
 
     const response = await fetchListProductType();
     if (response.success) {
-      dispatch(setProductTypes(response));
+      dispatchProductType(setProductTypes(response));
     } else {
-      dispatch(loadingFail(response));
+      dispatchProductType(loadingFail(response));
     }
-  }, [dispatch]);
+  }, [dispatchProductType]);
 
   useEffect(() => {
     fetchProductTypes();

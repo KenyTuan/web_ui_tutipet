@@ -129,7 +129,7 @@ export default function Sidebav({ children }) {
   const open = useAppStore((state) => state.dopen);
 
   return (
-    <div className="overflow-hidden">
+    <div>
       <Navbar />
       <Box height={50} />
       <Box sx={{ display: "flex" }}>

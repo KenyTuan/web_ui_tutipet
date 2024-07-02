@@ -11,7 +11,7 @@ export default function AlertNotication({
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       setSuccess(false);
-    }, 1000);
+    }, 3000);
 
     return () => clearTimeout(timeoutId);
   }, [setSuccess, success]);
@@ -19,7 +19,7 @@ export default function AlertNotication({
   return (
     <Collapse
       in={success}
-      style={{ position: "fixed", zIndex: 11, bottom: 0, left: 10 }}
+      style={{ position: "fixed", zIndex: 100, bottom: 0, right: 10 }}
     >
       <Alert
         severity={severity}

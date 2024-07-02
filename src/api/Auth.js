@@ -82,6 +82,18 @@ export async function updateProfile(request) {
   }
 }
 
+export async function changePassword(request) {
+  try {
+    const response = await axios.patch(ACC_URL + `/change-password`, request, {
+      headers: { ...headersWithAuthorization() },
+    });
+    return { success: true, data: response.data };
+  } catch (error) {
+    console.log(error);
+    return handleError(error);
+  }
+}
+
 function handleError(error) {
   // clearTokens();
   let errMsg;
