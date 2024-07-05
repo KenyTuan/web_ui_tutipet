@@ -19,7 +19,7 @@ export default function AlertNotication({
   return (
     <Collapse
       in={success}
-      style={{ position: "fixed", zIndex: 100, bottom: 0, right: 10 }}
+      style={{ position: "fixed", zIndex: 1000, bottom: 0, right: 10 }}
     >
       <Alert
         severity={severity}

@@ -5,9 +5,7 @@ export async function getList() {
   // if (tokenExpired()) {
   // }
   try {
-    const userInfo = getUserInfo();
     const response = await axios.get(CART_URL, {
-      params: { userId: userInfo.id },
       headers: {
         ...headersWithAuthorization(),
       },
@@ -23,9 +21,7 @@ export async function addOrUpdate(payload) {
   //   await auth.refreshToken();
   // }
   try {
-    const userInfo = getUserInfo();
     const response = await axios.put(CART_URL, payload, {
-      params: { userId: userInfo.id },
       headers: {
         ...headersWithAuthorization(),
       },
@@ -43,9 +39,8 @@ export async function remove(productId) {
   // }
 
   try {
-    const userInfo = getUserInfo();
     await axios.delete(CART_URL, {
-      params: { userId: userInfo.id, productId: productId },
+      params: { productId: productId },
       headers: {
         ...headersWithAuthorization(),
       },

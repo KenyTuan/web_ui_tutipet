@@ -4,13 +4,11 @@ import TableCell from "@mui/material/TableCell";
 import TableRow from "@mui/material/TableRow";
 import { Button, CardActionArea, CardMedia, Stack } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
-import FormUpdateProduct from "./FormUpdateProduct";
-import AlertNotication from "@/components/AlertNotication";
-import { deleteProduct, updateProductStatus } from "@/api/ProductClient";
+import { deleteProduct } from "@/api/ProductClient";
 import { setProduct, useProductContext } from "@/contexts/ProductContext";
 import Swal from "sweetalert2";
 
-export default function ItemProduct({ row }) {
+export default function ItemUser({ row }) {
   const { dispatch } = useProductContext();
   const [open, setOpen] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -31,49 +29,22 @@ export default function ItemProduct({ row }) {
     }).then((result) => {
       if (result.value) {
         deleteProduct(item.id).then((res) => {
-          if (res.success) {
-            Swal.fire(
-              "Thông Báo",
-              `Hệ thống đã xóa sản phẩm này.`,
-              "success"
-            ).then(dispatch(setProduct(res)));
-            return;
-          }
-          Swal.fire("Thông Báo", `Lỗi! Hệ thống đang xảy ra lỗi.`, "error");
+          Swal.fire(
+            "Đã Xóa Thành Công!",
+            `Bạn đã xoá sản phẩm có mã: ${item.id} !`,
+            "success"
+          ).then(dispatch(setProduct(res)));
         });
       }
     });
   };
 
-  const handleChangeStatus = (action) => {
-    updateProductStatus(row.id, action ? "DISABLED" : "ENABLED").then((res) => {
-      console.log("res", res);
-      if (res.success) {
-        Swal.fire(
-          "Thông Báo",
-          `Hệ thống đã ${action ? "ẩn" : "hiện"} sản phẩm này.`,
-          "success"
-        ).then(dispatch(setProduct(res)));
-        return;
-      }
-      Swal.fire("Thông Báo", `Lỗi! Hệ thống đang xảy ra lỗi.`, "error");
-    });
-  };
-
   return (
     <>
-      <AlertNotication
-        severity={severity}
-        setSuccess={setSuccess}
-        success={success}
-        message={message}
-      />
-      <FormUpdateProduct
-        item={row}
-        open={open}
-        handleClose={handleCloseUpdate}
-      />
       <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
+        <TableCell key={"id"} align={"center"} className="border-r-2">
+          {row.id}
+        </TableCell>
         <TableCell key={"img"} align={"center"} className="border-r-2">
           <CardActionArea>
             <CardMedia
@@ -95,27 +66,31 @@ export default function ItemProduct({ row }) {
           {row?.type?.petTypes === "CAT" ? "Mèo" : "Chó"}
         </TableCell>
         <TableCell key={"price"} align={"center"} className="border-r-2">
-          {`${row?.price}.000 VND`}
+          {(row?.price ?? 0).toLocaleString("en-US", {
+            style: "decimal",
+            minimumFractionDigits: 3,
+            maximumFractionDigits: 3,
+          })}{" "}
+          VND
         </TableCell>
         <TableCell key={"discount"} align={"center"} className="border-r-2">
-          {!row?.promotion ? `${row.price}.000 VND` : `${row.price}.000 VND`}
+          {(row?.price ?? 0).toLocaleString("en-US", {
+            style: "decimal",
+            minimumFractionDigits: 3,
+            maximumFractionDigits: 3,
+          })}{" "}
+          VND
         </TableCell>
         <TableCell key={"status"} align={"center"} className="border-r-2">
           {row.status == "ENABLED" ? (
             <Button
               variant="contained"
               className="bg-green-500 hover:bg-green-600 text-sm"
-              onClick={() => handleChangeStatus(true)}
             >
               Hiện
             </Button>
           ) : (
-            <Button
-              variant="outlined"
-              onClick={() => handleChangeStatus(false)}
-            >
-              Ẩn
-            </Button>
+            <Button variant="outlined">Ẩn</Button>
           )}
         </TableCell>
         <TableCell key={"action"} align="left" className="border-r-2">

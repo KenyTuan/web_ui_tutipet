@@ -22,9 +22,15 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import Swal from "sweetalert2";
 
-export default function FormUpdateProduct({ item, open, handleClose }) {
+export default function FormUpdatePromotion({
+  item,
+  open,
+  handleClose,
+  setSuccess,
+  setMessage,
+  setSeverity,
+}) {
   const { dispatch } = useProductContext();
   const { productTypeState } = useProductTypeContext();
   const { productTypeList } = productTypeState;
@@ -36,20 +42,19 @@ export default function FormUpdateProduct({ item, open, handleClose }) {
   const [priceError, setPriceError] = useState(false);
   const [description, setDescription] = useState(item?.description ?? "");
   const [descriptionError, setDescriptionError] = useState(false);
-  const [brand, setBrand] = useState(item.brand);
-  const [brandError, setBrandError] = useState(false);
-  const [origin, setOrigin] = useState(item.origin);
-  const [originError, setOriginError] = useState(false);
+  const [info, setInfo] = useState(item?.info ?? "");
+  const [infoError, setInfoError] = useState(false);
   const [img, setImg] = useState(item?.image);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadError, setUploadError] = useState(null);
-  const [error, setError] = useState("");
 
+  console.log("image", item.image);
   useEffect(() => {
     setPet(item?.type.petTypes);
     setType(item?.type.id);
     setImg(item?.image);
+    console.log("hhhhh", item.image);
   }, [item?.type.petTypes, item?.type.id, item?.image]);
 
   const postImage = async (base64String) => {
@@ -119,23 +124,12 @@ export default function FormUpdateProduct({ item, open, handleClose }) {
     }
   };
 
-  const handleChangeBrand = (e) => {
-    setBrand(e.target.value);
-
+  const handleChangeInfo = (e) => {
+    setInfo(e.target.value);
     if (e.target.validity.valid) {
-      setBrandError(false);
+      setInfoError(false);
     } else {
-      setBrandError(true);
-    }
-  };
-
-  const handleChangeOrigin = (e) => {
-    setOrigin(e.target.value);
-
-    if (e.target.validity.valid) {
-      setOriginError(false);
-    } else {
-      setOriginError(true);
+      setInfoError(true);
     }
   };
 
@@ -160,8 +154,9 @@ export default function FormUpdateProduct({ item, open, handleClose }) {
     const fileSizeLimit = 32 * 1024 * 1024;
 
     if (file.size > fileSizeLimit) {
-      setError("Kích thước file vượt quá giới hạn (32MB)");
-
+      setMessage("Kích thước file vượt quá giới hạn (32MB)");
+      setSeverity("error");
+      setSuccess(true);
       return;
     }
     const reader = new FileReader();
@@ -170,8 +165,9 @@ export default function FormUpdateProduct({ item, open, handleClose }) {
       const base64String = reader.result;
       const img = await postImage(base64String);
       if (!img) {
-        setError("Lỗi hệ thống chưa thể upload hình!");
-
+        setMessage("Lỗi hệ thống chưa thể upload hình!");
+        setSeverity("error");
+        setSuccess(true);
         return;
       }
 
@@ -182,6 +178,8 @@ export default function FormUpdateProduct({ item, open, handleClose }) {
     console.log("file:", file);
   };
 
+  console.log("img", img);
+
   const resetForm = () => {
     setName(item?.name);
     setNameError(false);
@@ -191,12 +189,9 @@ export default function FormUpdateProduct({ item, open, handleClose }) {
     setPriceError(false);
     setDescription(item.description);
     setDescriptionError(false);
+    setInfo(item.info);
+    setInfoError(false);
     setImg(item.image);
-    setOrigin(item.origin);
-    setOriginError(false);
-    setBrand(item.brand);
-    setBrandError(false);
-    setError("");
   };
 
   const handleSubmit = (e) => {
@@ -206,11 +201,15 @@ export default function FormUpdateProduct({ item, open, handleClose }) {
       console.log("ssss");
 
       if (!type) {
-        setError("Vui lòng chọn loại sản phẩm!");
+        setMessage("Vui lòng chọn loại sản phẩm");
+        setSeverity("error");
+        setSuccess(true);
         return;
       }
       if (!img) {
-        setError("Vui lòng chọn hình cho sản phẩm của bạn!");
+        setMessage("Vui lòng chọn hình cho sản phẩm");
+        setSeverity("error");
+        setSuccess(true);
         return;
       }
       updateProduct(
@@ -218,23 +217,24 @@ export default function FormUpdateProduct({ item, open, handleClose }) {
           name,
           price,
           description,
-          brand,
-          origin,
+          info,
           img,
-          typeId: type,
+          type_id: type,
         },
         item.id
       ).then((res) => {
+        console.log("ssss");
+        dispatch(setProduct(res));
+        setMessage("Đã cập nhật thành công!");
+        setSeverity("success");
+        setSuccess(true);
         handleCloseForm();
-        Swal.fire(
-          "Cập Nhật Thành Công!",
-          `Hệ thống đã cập nhật thành công.`,
-          "success"
-        ).then(dispatch(setProduct(res)));
       });
       return;
     } else {
-      setError("Vui lòng kiểm tra lại!");
+      setMessage("Vui lòng kiểm tra lại!");
+      setSeverity("error");
+      setSuccess(true);
       return;
     }
   };
@@ -258,15 +258,15 @@ export default function FormUpdateProduct({ item, open, handleClose }) {
         >
           <DialogTitle id="alert-dialog-title" fontWeight={"bold"}>
             {"Thêm sản phẩm mới"}
-            {error && (
-              <Typography color="error" variant="body2" sx={{ mb: 2 }}>
-                {error}
-              </Typography>
-            )}
           </DialogTitle>
           <Box height={10} />
           <DialogContent>
             <Box width={500}>
+              {/* {error && (
+                <Typography color="error" variant="body2" sx={{ mb: 2 }}>
+                  {error}
+                </Typography>
+              )} */}
               <Grid container spacing={2}>
                 <Grid item xs={12}>
                   <Select
@@ -311,35 +311,7 @@ export default function FormUpdateProduct({ item, open, handleClose }) {
                     onChange={handleChangeName}
                     error={nameError}
                     color={nameError ? "error" : "success"}
-                    helperText={nameError ? "Vui lòng nhập!" : ""}
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    required
-                    variant="outlined"
-                    size="small"
-                    label="Nhãn Hàng"
-                    value={brand || ""}
-                    onChange={handleChangeBrand}
-                    error={brandError}
-                    color={brandError ? "error" : "success"}
-                    helperText={brandError ? "Vui lòng nhập!" : ""}
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    required
-                    variant="outlined"
-                    size="small"
-                    label="Xuất xứ"
-                    value={origin || ""}
-                    onChange={handleChangeOrigin}
-                    error={originError}
-                    color={originError ? "error" : "success"}
-                    helperText={originError ? "Vui lòng nhập!" : ""}
+                    helperText={nameError ? "Vui lòng nhập tên sản phẩm!" : ""}
                   />
                 </Grid>
                 <Grid item xs={12}>
@@ -368,6 +340,7 @@ export default function FormUpdateProduct({ item, open, handleClose }) {
                     }}
                   />
                 </Grid>
+
                 <Grid item xs={12}>
                   <TextField
                     fullWidth
@@ -383,6 +356,24 @@ export default function FormUpdateProduct({ item, open, handleClose }) {
                     color={descriptionError ? "error" : "success"}
                     helperText={
                       descriptionError ? "Vui lòng nhập mô tả sản phẩm!" : ""
+                    }
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    multiline
+                    required
+                    variant="outlined"
+                    label="Thông Tin Chi tiết"
+                    size="small"
+                    value={info || ""}
+                    rows={4}
+                    onChange={handleChangeInfo}
+                    error={infoError}
+                    color={infoError ? "error" : "success"}
+                    helperText={
+                      infoError ? "Vui lòng nhập thông tin sản phẩm!" : ""
                     }
                   />
                 </Grid>

@@ -19,7 +19,6 @@ import {
 import Board from "@/components/ui/dashboard/Board";
 import { AddCircle, Delete, Edit, Visibility } from "@mui/icons-material";
 import { useState } from "react";
-import ItemProduct from "./ItemProduct";
 import {
   loadingProducts,
   setLoadingFail,
@@ -30,7 +29,6 @@ import {
 import { fetchListProduct } from "@/api/ProductClient";
 import { useEffect } from "react";
 import useSearchParams from "@/hook/useSearchParams";
-import FormAddProduct from "./FormAddProduct";
 import {
   loadingFail,
   loadingProductTypes,
@@ -40,6 +38,7 @@ import {
 import { fetchListProductType } from "@/api/ProductTypeClient";
 import { useCallback } from "react";
 import AlertNotication from "@/components/AlertNotication";
+import ItemUser from "./ItemUser";
 // import Swal from "sweetalert2";
 // import AddForm from "./AddForm";
 // import EditForm from "./EditForm";
@@ -58,17 +57,18 @@ const style = {
 };
 
 const columns = [
-  { id: "img", label: "Hình ảnh", minWidth: 100, align: "center" },
+  { id: "id", label: "ID", minWidth: 60, align: "center" },
+  { id: "img", label: "Hình ảnh", minWidth: 80, align: "center" },
   { id: "name", label: "Sản Phẩm", minWidth: 200, align: "center" },
   { id: "type", label: "Loại", minWidth: 170, align: "center" },
-  { id: "pet", label: "Pet", minWidth: 60, align: "center" },
-  { id: "price", label: "Giá Bán", minWidth: 150, align: "center" },
-  { id: "discount", label: "Giá Giảm", minWidth: 150, align: "center" },
+  { id: "pet", label: "Pet", minWidth: 50, align: "center" },
+  { id: "price", label: "Giá", minWidth: 150, align: "center" },
+  { id: "discount", label: "Giá Bán", minWidth: 150, align: "center" },
   { id: "status", label: "Trạng Thái", minWidth: 50, align: "center" },
   { id: "action", label: "Sửa/Xóa", minWidth: 50, align: "center" },
 ];
 
-export default function ProductList() {
+export default function UserList() {
   const [searchParams, updateSearchParams] = useSearchParams();
   const [page, setPage] = useState(0);
   const [search, setSearch] = useState("");
@@ -88,7 +88,7 @@ export default function ProductList() {
       const response = await fetchListProduct(
         search,
         page,
-        "",
+        "id",
         "",
         rowsPerPage
       );
@@ -147,19 +147,6 @@ export default function ProductList() {
 
   return (
     <>
-      <AlertNotication
-        severity={severity}
-        setSuccess={setSuccess}
-        success={success}
-        message={message}
-      />
-      <FormAddProduct
-        open={open}
-        handleClose={handleCloseAdd}
-        setSuccess={setSuccess}
-        setMessage={setMessage}
-        setSeverity={setSeverity}
-      />
       <Paper sx={{ width: "100%" }}>
         <Typography
           gutterBottom
@@ -168,7 +155,7 @@ export default function ProductList() {
           sx={{ padding: "20px" }}
           className="font-bold"
         >
-          Danh Sách Sản Phẩm
+          Danh Sách Người Dùng
         </Typography>
         <Divider />
         <Box height={10} />
@@ -180,27 +167,14 @@ export default function ProductList() {
             sx={{ width: "40%" }}
             getOptionLabel={(rows) => rows.name || ""}
             renderInput={(params) => (
-              <TextField {...params} size="small" label="Tìm Sản Phẩm...." />
+              <TextField {...params} size="small" label="Tìm ngươi dùng...." />
             )}
           />
-          <Typography
-            variant="h6"
-            component="div"
-            sx={{ flexGrow: 1 }}
-          ></Typography>
-          <Button
-            variant="contained"
-            endIcon={<AddCircle />}
-            className="bg-blue-500"
-            onClick={handleOpenAdd}
-          >
-            Thêm Sản Phẩm
-          </Button>
         </Stack>
         <Box height={25} />
         <Board columns={columns}>
           {currentPageData?.map((row) => (
-            <ItemProduct row={row} key={row.id} />
+            <ItemUser row={row} key={row.id} />
           ))}
         </Board>
         <TablePagination

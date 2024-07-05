@@ -1,63 +1,53 @@
-import { addProduct, updateProduct } from "@/api/ProductClient";
+import { addProduct } from "@/api/ProductClient";
 import { setProduct, useProductContext } from "@/contexts/ProductContext";
 import { useProductTypeContext } from "@/contexts/ProductTypeContext";
 import {
   Box,
   Button,
-  CardActionArea,
-  CardMedia,
-  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
+  FormControl,
   Grid,
   InputAdornment,
-  LinearProgress,
   MenuItem,
   Select,
-  Stack,
   TextField,
   Typography,
 } from "@mui/material";
 import axios from "axios";
-import React, { useEffect, useState } from "react";
-import Swal from "sweetalert2";
+import React, { forwardRef, useState } from "react";
 
-export default function FormUpdateProduct({ item, open, handleClose }) {
+export default function FormAddPromotion({
+  open,
+  handleClose,
+  setSuccess,
+  setMessage,
+  setSeverity,
+}) {
   const { dispatch } = useProductContext();
   const { productTypeState } = useProductTypeContext();
   const { productTypeList } = productTypeState;
-  const [name, setName] = useState(item.name);
+  const [name, setName] = useState("");
   const [nameError, setNameError] = useState(false);
-  const [pet, setPet] = useState(item?.type?.petTypes);
-  const [type, setType] = useState(item?.type?.id);
-  const [price, setPrice] = useState(item?.price);
+  const [pet, setPet] = useState("CAT");
+  const [type, setType] = useState("");
+  const [price, setPrice] = useState("");
   const [priceError, setPriceError] = useState(false);
-  const [description, setDescription] = useState(item?.description ?? "");
+  const [description, setDescription] = useState("");
   const [descriptionError, setDescriptionError] = useState(false);
-  const [brand, setBrand] = useState(item.brand);
-  const [brandError, setBrandError] = useState(false);
-  const [origin, setOrigin] = useState(item.origin);
-  const [originError, setOriginError] = useState(false);
-  const [img, setImg] = useState(item?.image);
-  const [uploading, setUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [uploadError, setUploadError] = useState(null);
-  const [error, setError] = useState("");
+  const [info, setInfo] = useState("");
+  const [infoError, setInfoError] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [isFilePicked, setIsFilePicked] = useState(false);
 
-  useEffect(() => {
-    setPet(item?.type.petTypes);
-    setType(item?.type.id);
-    setImg(item?.image);
-  }, [item?.type.petTypes, item?.type.id, item?.image]);
-
-  const postImage = async (base64String) => {
+  const postImage = async () => {
     try {
       const res = await axios.post(
         `https://api.imgbb.com/1/upload?key=58240beb2987602ef6ecc2cdb3488c29`,
         {
-          image: base64String.replace(
+          image: selectedFile.replace(
             /^data:image\/(png|jpeg|jpg|webp);base64,/,
             ""
           ),
@@ -66,30 +56,17 @@ export default function FormUpdateProduct({ item, open, handleClose }) {
           headers: {
             "Content-Type": "multipart/form-data",
           },
-          onUploadProgress: (progressEvent) => {
-            const progress = Math.round(
-              (progressEvent.loaded * 100) / progressEvent.total
-            );
-            setUploadProgress(progress);
-          },
         }
       );
 
       console.log("image: ", res);
 
       if (res.status !== 200) {
-        setUploadError("Failed to upload image");
-        setUploading(false);
         return false;
       }
-
-      setUploading(false);
-      setUploadProgress(0);
       return res.data.data.url;
     } catch (error) {
       console.error("error", error);
-      setUploadError("Failed to upload image");
-      setUploading(false);
       return false;
     }
   };
@@ -119,23 +96,12 @@ export default function FormUpdateProduct({ item, open, handleClose }) {
     }
   };
 
-  const handleChangeBrand = (e) => {
-    setBrand(e.target.value);
-
+  const handleChangeInfo = (e) => {
+    setInfo(e.target.value);
     if (e.target.validity.valid) {
-      setBrandError(false);
+      setInfoError(false);
     } else {
-      setBrandError(true);
-    }
-  };
-
-  const handleChangeOrigin = (e) => {
-    setOrigin(e.target.value);
-
-    if (e.target.validity.valid) {
-      setOriginError(false);
-    } else {
-      setOriginError(true);
+      setInfoError(true);
     }
   };
 
@@ -155,86 +121,85 @@ export default function FormUpdateProduct({ item, open, handleClose }) {
     return value.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   };
 
-  const handleChangeFile = async (event) => {
+  console.log("price", price);
+
+  const handleChangeFile = (event) => {
     const file = event.target.files[0];
     const fileSizeLimit = 32 * 1024 * 1024;
 
     if (file.size > fileSizeLimit) {
-      setError("Kích thước file vượt quá giới hạn (32MB)");
-
+      console.error("Kích thước file vượt quá giới hạn (32MB)");
       return;
     }
     const reader = new FileReader();
 
-    reader.onloadend = async () => {
+    reader.onloadend = () => {
       const base64String = reader.result;
-      const img = await postImage(base64String);
-      if (!img) {
-        setError("Lỗi hệ thống chưa thể upload hình!");
-
-        return;
-      }
-
-      setImg(img);
+      setSelectedFile(base64String);
       console.log("Base64 encoded image:", base64String);
     };
     reader.readAsDataURL(file);
     console.log("file:", file);
+
+    setIsFilePicked(true);
   };
 
   const resetForm = () => {
-    setName(item?.name);
+    setName("");
     setNameError(false);
-    setPet(item.type.petTypes);
-    setType(item.type.id);
-    setPrice(item.price);
+    setPet("CAT");
+    setType("");
+    setPrice("");
     setPriceError(false);
-    setDescription(item.description);
+    setDescription("");
     setDescriptionError(false);
-    setImg(item.image);
-    setOrigin(item.origin);
-    setOriginError(false);
-    setBrand(item.brand);
-    setBrandError(false);
-    setError("");
+    setInfo("");
+    setInfoError(false);
+    setSelectedFile(null);
+    setIsFilePicked(false);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (e.target.checkValidity()) {
-      console.log("ssss");
-
       if (!type) {
-        setError("Vui lòng chọn loại sản phẩm!");
+        setMessage("Vui lòng chọn loại sản phẩm");
+        setSeverity("error");
+        setSuccess(false);
         return;
       }
+      if (!isFilePicked) {
+        setMessage("Vui lòng chọn hình cho sản phẩm của bạn!");
+        setSuccess(false);
+        return;
+      }
+      const img = await postImage();
+
       if (!img) {
-        setError("Vui lòng chọn hình cho sản phẩm của bạn!");
+        setMessage("Lỗi hệ thống chưa thể upload hình!");
+        setSuccess(false);
         return;
       }
-      updateProduct(
-        {
-          name,
-          price,
-          description,
-          brand,
-          origin,
-          img,
-          typeId: type,
-        },
-        item.id
-      ).then((res) => {
+      addProduct({
+        name,
+        price,
+        description,
+        info,
+        img,
+        type_id: type,
+      }).then((res) => {
+        dispatch(setProduct(res));
+        setMessage("Đã cập nhật thành công!");
+        setSeverity("success");
+        setSuccess(true);
         handleCloseForm();
-        Swal.fire(
-          "Cập Nhật Thành Công!",
-          `Hệ thống đã cập nhật thành công.`,
-          "success"
-        ).then(dispatch(setProduct(res)));
       });
       return;
     } else {
-      setError("Vui lòng kiểm tra lại!");
+      setMessage("Vui lòng kiểm tra lại!");
+      setSeverity("error");
+      setSuccess(false);
       return;
     }
   };
@@ -258,15 +223,15 @@ export default function FormUpdateProduct({ item, open, handleClose }) {
         >
           <DialogTitle id="alert-dialog-title" fontWeight={"bold"}>
             {"Thêm sản phẩm mới"}
-            {error && (
-              <Typography color="error" variant="body2" sx={{ mb: 2 }}>
-                {error}
-              </Typography>
-            )}
           </DialogTitle>
           <Box height={10} />
           <DialogContent>
             <Box width={500}>
+              {/* {error && (
+                <Typography color="error" variant="body2" sx={{ mb: 2 }}>
+                  {error}
+                </Typography>
+              )} */}
               <Grid container spacing={2}>
                 <Grid item xs={12}>
                   <Select
@@ -274,7 +239,7 @@ export default function FormUpdateProduct({ item, open, handleClose }) {
                     labelId="demo-simple-select-label"
                     id="demo-simple-select"
                     label="Chọn loại thú cưng"
-                    value={pet || "DOG"}
+                    value={pet}
                     onChange={handleChangePet}
                   >
                     <MenuItem value={"CAT"}>Mèo</MenuItem>
@@ -311,35 +276,7 @@ export default function FormUpdateProduct({ item, open, handleClose }) {
                     onChange={handleChangeName}
                     error={nameError}
                     color={nameError ? "error" : "success"}
-                    helperText={nameError ? "Vui lòng nhập!" : ""}
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    required
-                    variant="outlined"
-                    size="small"
-                    label="Nhãn Hàng"
-                    value={brand || ""}
-                    onChange={handleChangeBrand}
-                    error={brandError}
-                    color={brandError ? "error" : "success"}
-                    helperText={brandError ? "Vui lòng nhập!" : ""}
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    required
-                    variant="outlined"
-                    size="small"
-                    label="Xuất xứ"
-                    value={origin || ""}
-                    onChange={handleChangeOrigin}
-                    error={originError}
-                    color={originError ? "error" : "success"}
-                    helperText={originError ? "Vui lòng nhập!" : ""}
+                    helperText={nameError ? "Vui lòng nhập tên sản phẩm!" : ""}
                   />
                 </Grid>
                 <Grid item xs={12}>
@@ -368,6 +305,7 @@ export default function FormUpdateProduct({ item, open, handleClose }) {
                     }}
                   />
                 </Grid>
+
                 <Grid item xs={12}>
                   <TextField
                     fullWidth
@@ -377,7 +315,7 @@ export default function FormUpdateProduct({ item, open, handleClose }) {
                     label="Mô Tả"
                     size="small"
                     rows={4}
-                    value={description || ""}
+                    value={description}
                     onChange={handleChangeDescription}
                     error={descriptionError}
                     color={descriptionError ? "error" : "success"}
@@ -387,76 +325,30 @@ export default function FormUpdateProduct({ item, open, handleClose }) {
                   />
                 </Grid>
                 <Grid item xs={12}>
-                  <Stack
-                    direction={"row"}
-                    display={"flex"}
-                    justifyContent={"center"}
-                    alignItems={"center"}
-                  >
-                    <TextField
-                      variant="standard"
-                      type="file"
-                      onChange={handleChangeFile}
-                      fullWidth
-                    />
-                    {uploading && (
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "center",
-                          alignItems: "center",
-                          mt: 2,
-                        }}
-                      >
-                        <CircularProgress />
-                      </Box>
-                    )}
-                    {!uploading && img && (
-                      <CardActionArea>
-                        <CardMedia
-                          src={img ?? "/product.jpg"}
-                          component="img"
-                          height={12}
-                          style={{ height: "8rem", objectFit: "contain" }}
-                          alt="hình cún con"
-                        />
-                      </CardActionArea>
-                    )}
-                    {uploadError && (
-                      <Typography color="error" variant="body2" sx={{ mt: 2 }}>
-                        {uploadError}
-                      </Typography>
-                    )}
-                    {uploading && (
-                      <Box sx={{ width: "100%", mt: 2 }}>
-                        <LinearProgress
-                          variant="determinate"
-                          value={uploadProgress}
-                        />
-                        <Typography
-                          variant="body2"
-                          color="textSecondary"
-                        >{`Đang tải: ${uploadProgress}%`}</Typography>
-                      </Box>
-                    )}
-                  </Stack>
-                  {uploading && (
-                    <Box sx={{ width: "100%", mt: 2 }}>
-                      <LinearProgress
-                        variant="determinate"
-                        value={uploadProgress}
-                      />
-                      <Typography
-                        variant="body2"
-                        color="textSecondary"
-                      >{`Đang tải: ${uploadProgress}%`}</Typography>
-                    </Box>
-                  )}
-                  {uploadError && (
-                    <Typography color="error" variant="body2" sx={{ mt: 2 }}>
-                      {uploadError}
-                    </Typography>
-                  )}
+                  <TextField
+                    fullWidth
+                    multiline
+                    required
+                    variant="outlined"
+                    label="Thông Tin Chi tiết"
+                    size="small"
+                    value={info}
+                    rows={4}
+                    onChange={handleChangeInfo}
+                    error={infoError}
+                    color={infoError ? "error" : "success"}
+                    helperText={
+                      infoError ? "Vui lòng nhập thông tin sản phẩm!" : ""
+                    }
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    variant="standard"
+                    type="file"
+                    onChange={handleChangeFile}
+                    fullWidth
+                  />
                 </Grid>
               </Grid>
             </Box>

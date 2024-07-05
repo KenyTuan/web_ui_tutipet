@@ -81,7 +81,7 @@ const page = [
   {
     name: "Chương Trình",
     icon: Redeem,
-    href: "/dashboard/promotion",
+    href: "/dashboard/promotions",
   },
   {
     name: "Thành Viên",

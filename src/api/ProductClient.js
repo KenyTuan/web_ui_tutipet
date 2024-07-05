@@ -51,10 +51,23 @@ export async function addProduct(req) {
   }
 }
 
-export async function updateProduct(req) {
+export async function updateProduct(req, id) {
   console.log("Fetching product for Id: " + req);
   try {
-    const response = await axios.put(PRODUCT_URL, req, {
+    const response = await axios.put(PRODUCT_URL + `/${id}`, req, {
+      headers: headersWithAuthorization(),
+    });
+    console.log("Response JSON: " + JSON.stringify(response.data));
+    return { success: true, data: response.data };
+  } catch (error) {
+    console.error("Error add product", error);
+    return handleError(error);
+  }
+}
+
+export async function updateProductStatus(id, enable) {
+  try {
+    const response = await axios.patch(PRODUCT_URL + `/${id}`, enable, {
       headers: headersWithAuthorization(),
     });
     console.log("Response JSON: " + JSON.stringify(response.data));
