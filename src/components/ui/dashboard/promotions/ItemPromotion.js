@@ -49,56 +49,45 @@ export default function ItemPromotion({ row }) {
         success={success}
         message={message}
       />
-      <FormUpdatePromotion
+      {/* <FormUpdatePromotion
         item={row}
         open={open}
         handleClose={handleCloseUpdate}
         setSuccess={setSuccess}
         setMessage={setMessage}
         setSeverity={setSeverity}
-      />
+      /> */}
       <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
-        <TableCell key={"id"} align={"center"} className="border-r-2">
-          {row.id}
-        </TableCell>
-        <TableCell key={"img"} align={"center"} className="border-r-2">
-          <CardActionArea>
-            <CardMedia
-              src={row?.image ?? "/product.jpg"}
-              component="img"
-              height={12}
-              style={{ height: "8rem", objectFit: "contain" }}
-              alt="hình cún con"
-            />
-          </CardActionArea>
+        <TableCell key={"code"} align={"center"} className="border-r-2">
+          {row?.code ?? ""}
         </TableCell>
         <TableCell key={"name"} align={"center"} className="border-r-2">
           {row?.name}
         </TableCell>
-        <TableCell key={"type"} align={"center"} className="border-r-2">
-          {row?.type?.name}
+        <TableCell key={"target"} align={"center"} className="border-r-2">
+          {row?.target === "ORDER" ? "Dành Cho Đơn Hàng" : "Dành Cho Sản Phẩm"}
         </TableCell>
-        <TableCell key={"pet"} align={"center"} className="border-r-2">
-          {row?.type?.petTypes === "CAT" ? "Mèo" : "Chó"}
+        <TableCell key={"discountType"} align={"center"} className="border-r-2">
+          {row?.discountType === "PERCENTAGE"
+            ? "Theo Phần Trăm"
+            : "Theo Giá Tiền"}
         </TableCell>
-        <TableCell key={"price"} align={"center"} className="border-r-2">
-          {(row?.price ?? 0).toLocaleString("en-US", {
-            style: "decimal",
-            minimumFractionDigits: 3,
-            maximumFractionDigits: 3,
-          })}{" "}
-          VND
+        <TableCell key={"value"} align={"center"} className="border-r-2">
+          {row?.discountType === "PERCENTAGE"
+            ? `${row?.value}.000 VND`
+            : `${row?.value}%`}
         </TableCell>
-        <TableCell key={"discount"} align={"center"} className="border-r-2">
-          {(row?.price ?? 0).toLocaleString("en-US", {
-            style: "decimal",
-            minimumFractionDigits: 3,
-            maximumFractionDigits: 3,
-          })}{" "}
-          VND
+        <TableCell key={"fromTime"} align={"center"} className="border-r-2">
+          {row?.fromTime}
+        </TableCell>
+        <TableCell key={"toTime"} align={"center"} className="border-r-2">
+          {row?.toTime}
+        </TableCell>
+        <TableCell key={"toTime"} align={"center"} className="border-r-2">
+          {row?.products.length}
         </TableCell>
         <TableCell key={"status"} align={"center"} className="border-r-2">
-          {row.status == "ENABLED" ? (
+          {row.enableStatus == "ENABLED" ? (
             <Button
               variant="contained"
               className="bg-green-500 hover:bg-green-600 text-sm"

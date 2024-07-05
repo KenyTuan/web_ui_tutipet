@@ -10,6 +10,7 @@ export const PRODUCT_URL = `${SCHEME}://${HOST}:${PORT}/api/v1/products`;
 export const PRODUCT_TYPE_URL = `${SCHEME}://${HOST}:${PORT}/api/v1/types`;
 export const CART_URL = `${SCHEME}://${HOST}:${PORT}/api/v1/carts`;
 export const ORDER_URL = `${SCHEME}://${HOST}:${PORT}/api/v1/orders`;
+export const PROMOTION_URL = `${SCHEME}://${HOST}:${PORT}/api/v1/promotions`;
 export const USER_URL = `${SCHEME}://${HOST}:${PORT}/api/v1/users`;
 export const ACCESS_TOKEN = "accessToken";
 export const EXPIRATION = "expiration";

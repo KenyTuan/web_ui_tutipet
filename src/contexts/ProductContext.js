@@ -3,6 +3,7 @@ import React, { createContext, useContext, useReducer } from "react";
 
 export const LOADING_PRODUCTS = "LOADING_PRODUCTS";
 export const LOADING_PRODUCTS_SUCCESS = "LOADING_PRODUCTS_SUCCESS";
+export const LOADING_PRODUCTS_ADMIN_SUCCESS = "LOADING_PRODUCTS_ADMIN_SUCCESS";
 export const LOADING_PRODUCTS_ERROR = "LOADING_PRODUCTS_ERROR";
 export const SET_ROW_PRODUCTS = "SET_ROW_PRODUCTS";
 export const ADĐ_PRODUCT = "ADĐ_PRODUCT";
@@ -24,6 +25,13 @@ export function setProducts(response, page, search, sortBy, sortOrder) {
       sortBy,
       sortOrder,
     },
+  };
+}
+
+export function loadingManagerProductSuceess(response) {
+  return {
+    type: LOADING_PRODUCTS_ADMIN_SUCCESS,
+    payload: response.data,
   };
 }
 
@@ -79,6 +87,12 @@ const productReducer = (state, action) => {
         page: action.payload.page,
         loading: false,
       };
+    case LOADING_PRODUCTS_ADMIN_SUCCESS:
+      return {
+        ...state,
+        productListAdmin: action.payload,
+        loading: true,
+      };
     case SET_ROW_PRODUCTS:
       return {
         ...state,
@@ -104,6 +118,7 @@ const productReducer = (state, action) => {
 };
 
 const initialState = {
+  productListAdmin: [],
   productList: {},
   total_pages: 1,
   page: 1,

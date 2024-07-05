@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { styled, alpha } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
@@ -17,12 +17,37 @@ import MuiAppBar from "@mui/material/AppBar";
 import { useAppStore } from "./appStore";
 import Link from "next/link";
 import MenuIcon from "@mui/icons-material/Menu";
+import {
+  loadingManagerProductSuceess,
+  loadingProducts,
+  setLoadingFail,
+  useProductContext,
+} from "@/contexts/ProductContext";
+import { fetchAllProducts } from "@/api/ProductClient";
+import {
+  loadingFail,
+  loadingProductTypes,
+  setProductTypes,
+  useProductTypeContext,
+} from "@/contexts/ProductTypeContext";
+import { fetchListProductType } from "@/api/ProductTypeClient";
+import {
+  loadingFailPromotion,
+  loadingManagerPromotionSuceess,
+  loadingPromotions,
+  usePromotionContext,
+} from "@/contexts/PromotionContext";
+import { fetchAllPromotion } from "@/api/PromotionClient";
 
 const AppBar = styled(MuiAppBar)(({ theme }) => ({
   zIndex: theme.zIndex.drawer + 1,
 }));
 
 export default function Navbar() {
+  const { dispatch } = useProductContext();
+  const { dispatchProductType } = useProductTypeContext();
+  const { dispatchPromotion } = usePromotionContext();
+
   const [anchorEl, setAnchorEl] = useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = useState(null);
 
@@ -34,6 +59,45 @@ export default function Navbar() {
 
   const mobileMenuId = "primary-search-account-menu-mobile";
   const menuId = "primary-search-account-menu";
+
+  const fetchProducts = useCallback(async () => {
+    dispatch(loadingProducts());
+
+    const response = await fetchAllProducts();
+    if (response.success) {
+      dispatch(loadingManagerProductSuceess(response));
+    } else {
+      dispatch(setLoadingFail(response));
+    }
+  }, [dispatch]);
+
+  const fetchPromotion = useCallback(async () => {
+    dispatchPromotion(loadingPromotions());
+
+    const response = await fetchAllPromotion();
+    if (response.success) {
+      dispatchPromotion(loadingManagerPromotionSuceess(response));
+    } else {
+      dispatchPromotion(loadingFailPromotion(response));
+    }
+  }, [dispatchPromotion]);
+
+  const fetchProductTypes = useCallback(async () => {
+    dispatchProductType(loadingProductTypes());
+
+    const response = await fetchListProductType();
+    if (response.success) {
+      dispatchProductType(setProductTypes(response));
+    } else {
+      dispatchProductType(loadingFail(response));
+    }
+  }, [dispatchProductType]);
+
+  useEffect(() => {
+    fetchProducts();
+    fetchProductTypes();
+    fetchPromotion();
+  }, [fetchProductTypes, fetchProducts, fetchPromotion]);
 
   const handleProfileMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);

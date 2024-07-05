@@ -40,10 +40,6 @@ import {
 import { fetchListProductType } from "@/api/ProductTypeClient";
 import { useCallback } from "react";
 import AlertNotication from "@/components/AlertNotication";
-// import Swal from "sweetalert2";
-// import AddForm from "./AddForm";
-// import EditForm from "./EditForm";
-// import axios from "axios";
 
 const style = {
   position: "absolute",
@@ -69,72 +65,23 @@ const columns = [
 ];
 
 export default function ProductList() {
-  const [searchParams, updateSearchParams] = useSearchParams();
   const [page, setPage] = useState(0);
   const [search, setSearch] = useState("");
-  const { productState, dispatch } = useProductContext();
-  const { productList, row_page, loading, error } = productState;
-  const [totalElements, setTotalElements] = useState(0);
-  const { productTypeState, dispatchProductType } = useProductTypeContext();
+  const { productState } = useProductContext();
+  const { productListAdmin } = productState;
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [open, setOpen] = useState(false);
   const [success, setSuccess] = useState(false);
   const [message, setMessage] = useState("");
   const [severity, setSeverity] = useState("success");
-
-  const fetchProducts = React.useCallback(
-    async (search, page, rowsPerPage) => {
-      dispatch(loadingProducts());
-
-      const response = await fetchListProduct(
-        search,
-        page,
-        "",
-        "",
-        rowsPerPage
-      );
-      if (response.success) {
-        dispatch(setProducts(response, page, search));
-        setTotalElements(response.data.totalElements);
-      } else {
-        dispatch(setLoadingFail(response));
-      }
-    },
-    [dispatch]
-  );
-
-  const fetchProductTypes = useCallback(async () => {
-    dispatchProductType(loadingProductTypes());
-
-    const response = await fetchListProductType();
-    if (response.success) {
-      dispatchProductType(setProductTypes(response));
-    } else {
-      dispatchProductType(loadingFail(response));
-    }
-  }, [dispatchProductType]);
-
-  useEffect(() => {
-    fetchProductTypes();
-  }, [fetchProductTypes]);
-
-  useEffect(() => {
-    const currentPageData = productState.productList[page];
-    if (
-      !currentPageData ||
-      Date.now() - currentPageData.timestamp > 300000 ||
-      currentPageData?.search !== search
-    ) {
-      fetchProducts(search, page, row_page);
-    }
-  }, [fetchProducts, page, productState.productList, row_page, search]);
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
 
   const handleChangeRowsPerPage = (event) => {
-    dispatch(setRowPage(+event.target.value));
     setPage(0);
+    setRowsPerPage(event.target.value);
   };
 
   const handleOpenAdd = () => {
@@ -143,7 +90,7 @@ export default function ProductList() {
 
   const handleCloseAdd = () => setOpen(false);
 
-  const currentPageData = productList[page] ? productList[page].data : [];
+  console.log("productListAdmin", productListAdmin);
 
   return (
     <>
@@ -176,7 +123,7 @@ export default function ProductList() {
           <Autocomplete
             disablePortal
             id="combo-box-demo"
-            options={[]}
+            options={productListAdmin}
             sx={{ width: "40%" }}
             getOptionLabel={(rows) => rows.name || ""}
             renderInput={(params) => (
@@ -199,15 +146,18 @@ export default function ProductList() {
         </Stack>
         <Box height={25} />
         <Board columns={columns}>
-          {currentPageData?.map((row) => (
-            <ItemProduct row={row} key={row.id} />
-          ))}
+          {productListAdmin
+            // .filter((item) => )
+            ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+            .map((row) => (
+              <ItemProduct row={row} key={row.id} />
+            ))}
         </Board>
         <TablePagination
           rowsPerPageOptions={[5, 10, 25, 100]}
           component="div"
-          count={totalElements}
-          rowsPerPage={row_page}
+          count={productListAdmin.length}
+          rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}

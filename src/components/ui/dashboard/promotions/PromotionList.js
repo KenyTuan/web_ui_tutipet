@@ -19,27 +19,20 @@ import {
 import Board from "@/components/ui/dashboard/Board";
 import { AddCircle, Delete, Edit, Visibility } from "@mui/icons-material";
 import { useState } from "react";
-import {
-  loadingProducts,
-  setLoadingFail,
-  setProducts,
-  setRowPage,
-  useProductContext,
-} from "@/contexts/ProductContext";
-import { fetchListProduct } from "@/api/ProductClient";
 import { useEffect } from "react";
 import useSearchParams from "@/hook/useSearchParams";
-import {
-  loadingFail,
-  loadingProductTypes,
-  setProductTypes,
-  useProductTypeContext,
-} from "@/contexts/ProductTypeContext";
-import { fetchListProductType } from "@/api/ProductTypeClient";
 import { useCallback } from "react";
 import AlertNotication from "@/components/AlertNotication";
 import ItemPromotion from "./ItemPromotion";
 import FormAddPromotion from "./FormAddPromotion";
+import { fetchListPromotion } from "@/api/PromotionClient";
+import {
+  loadingFailPromotion,
+  loadingPromotions,
+  setPromotions,
+  setRowPage,
+  usePromotionContext,
+} from "@/contexts/PromotionContext";
 
 const style = {
   position: "absolute",
@@ -54,84 +47,40 @@ const style = {
 };
 
 const columns = [
-  { id: "id", label: "ID", minWidth: 60, align: "center" },
-  { id: "img", label: "Hình ảnh", minWidth: 80, align: "center" },
-  { id: "name", label: "Sản Phẩm", minWidth: 200, align: "center" },
-  { id: "type", label: "Loại", minWidth: 170, align: "center" },
-  { id: "pet", label: "Pet", minWidth: 50, align: "center" },
-  { id: "price", label: "Giá", minWidth: 150, align: "center" },
-  { id: "discount", label: "Giá Bán", minWidth: 150, align: "center" },
+  { id: "code", label: "Mã Giảm", minWidth: 150, align: "center" },
+  { id: "name", label: "Tiêu Đề", minWidth: 350, align: "center" },
+  { id: "target", label: "Loại", minWidth: 170, align: "center" },
+  { id: "discountType", label: "Loại Giảm", minWidth: 170, align: "center" },
+  { id: "value", label: "Giá Trị", minWidth: 250, align: "center" },
+  { id: "fromTime", label: "Ngày Bắt Đầu", minWidth: 300, align: "center" },
+  { id: "toTime", label: "Ngày Kết Thúc", minWidth: 300, align: "center" },
+  {
+    id: "lengthProducts",
+    label: "Tổng Số Sản Phẩm",
+    minWidth: 250,
+    align: "center",
+  },
   { id: "status", label: "Trạng Thái", minWidth: 50, align: "center" },
   { id: "action", label: "Sửa/Xóa", minWidth: 50, align: "center" },
 ];
 
 export default function PromotionList() {
-  const [searchParams, updateSearchParams] = useSearchParams();
   const [page, setPage] = useState(0);
-  const [search, setSearch] = useState("");
-  const { productState, dispatch } = useProductContext();
-  const { productList, row_page, loading, error } = productState;
-  const [totalElements, setTotalElements] = useState(0);
-  const { productTypeState, dispatchProductType } = useProductTypeContext();
+  const { promotionState, dispatchPromotion } = usePromotionContext();
+  const { promotionListAdmin } = promotionState;
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [open, setOpen] = useState(false);
   const [success, setSuccess] = useState(false);
   const [message, setMessage] = useState("");
   const [severity, setSeverity] = useState("success");
-
-  const fetchProducts = React.useCallback(
-    async (search, page, rowsPerPage) => {
-      dispatch(loadingProducts());
-
-      const response = await fetchListProduct(
-        search,
-        page,
-        "id",
-        "",
-        rowsPerPage
-      );
-      if (response.success) {
-        dispatch(setProducts(response, page, search));
-        setTotalElements(response.data.totalElements);
-      } else {
-        dispatch(setLoadingFail(response));
-      }
-    },
-    [dispatch]
-  );
-
-  const fetchProductTypes = useCallback(async () => {
-    dispatchProductType(loadingProductTypes());
-
-    const response = await fetchListProductType();
-    if (response.success) {
-      dispatchProductType(setProductTypes(response));
-    } else {
-      dispatchProductType(loadingFail(response));
-    }
-  }, [dispatchProductType]);
-
-  useEffect(() => {
-    fetchProductTypes();
-  }, [fetchProductTypes]);
-
-  useEffect(() => {
-    const currentPageData = productState.productList[page];
-    if (
-      !currentPageData ||
-      Date.now() - currentPageData.timestamp > 300000 ||
-      currentPageData?.search !== search
-    ) {
-      fetchProducts(search, page, row_page);
-    }
-  }, [fetchProducts, page, productState.productList, row_page, search]);
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
 
   const handleChangeRowsPerPage = (event) => {
-    dispatch(setRowPage(+event.target.value));
     setPage(0);
+    setRowsPerPage(event.target.value);
   };
 
   const handleOpenAdd = () => {
@@ -139,9 +88,7 @@ export default function PromotionList() {
   };
 
   const handleCloseAdd = () => setOpen(false);
-
-  const currentPageData = productList[page] ? productList[page].data : [];
-
+  console.log("promotionListAdmin", promotionListAdmin);
   return (
     <>
       <AlertNotication
@@ -165,21 +112,11 @@ export default function PromotionList() {
           sx={{ padding: "20px" }}
           className="font-bold"
         >
-          Danh Sách Sản Phẩm
+          Danh Sách Chường Trình Khuyến Mãi
         </Typography>
         <Divider />
         <Box height={10} />
         <Stack direction="row" spacing={2} className="mx-4">
-          <Autocomplete
-            disablePortal
-            id="combo-box-demo"
-            options={[]}
-            sx={{ width: "40%" }}
-            getOptionLabel={(rows) => rows.name || ""}
-            renderInput={(params) => (
-              <TextField {...params} size="small" label="Tìm Sản Phẩm...." />
-            )}
-          />
           <Typography
             variant="h6"
             component="div"
@@ -191,20 +128,22 @@ export default function PromotionList() {
             className="bg-blue-500"
             onClick={handleOpenAdd}
           >
-            Thêm Sản Phẩm
+            Tạo Chương Trình
           </Button>
         </Stack>
         <Box height={25} />
         <Board columns={columns}>
-          {currentPageData?.map((row) => (
-            <ItemPromotion row={row} key={row.id} />
-          ))}
+          {promotionListAdmin
+            ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+            .map((row) => (
+              <ItemPromotion row={row} key={row.id} />
+            ))}
         </Board>
         <TablePagination
           rowsPerPageOptions={[5, 10, 25, 100]}
           component="div"
-          count={totalElements}
-          rowsPerPage={row_page}
+          count={promotionListAdmin.length}
+          rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}

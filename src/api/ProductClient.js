@@ -5,6 +5,18 @@ import {
 } from "@/api/Config";
 import axios from "axios";
 
+export async function fetchAllProducts() {
+  try {
+    const response = await axios.get(PRODUCT_URL, {
+      headers: headersWithAuthorization(),
+    });
+    console.log("data list", response);
+    return { success: true, data: response.data };
+  } catch (error) {
+    return handleError(error);
+  }
+}
+
 export async function fetchListProduct(
   keySearch,
   page,
