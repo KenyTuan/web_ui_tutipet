@@ -5,17 +5,17 @@ import TableRow from "@mui/material/TableRow";
 import { Button, CardActionArea, CardMedia, Stack } from "@mui/material";
 import { Delete, Edit } from "@mui/icons-material";
 import FormUpdateProduct from "./FormUpdateProduct";
-import AlertNotication from "@/components/AlertNotication";
 import { deleteProduct, updateProductStatus } from "@/api/ProductClient";
-import { setProduct, useProductContext } from "@/contexts/ProductContext";
+import {
+  acctionDeleteProduct,
+  acctionUpdateProduct,
+  useProductContext,
+} from "@/contexts/ProductContext";
 import Swal from "sweetalert2";
 
-export default function ItemProduct({ row }) {
+export default function ItemProduct({ row, index }) {
   const { dispatch } = useProductContext();
   const [open, setOpen] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [message, setMessage] = useState("");
-  const [severity, setSeverity] = useState("success");
   const handleCloseUpdate = () => setOpen(false);
   const handleOpenUpdate = () => setOpen(true);
 
@@ -33,13 +33,13 @@ export default function ItemProduct({ row }) {
         deleteProduct(item.id).then((res) => {
           if (res.success) {
             Swal.fire(
-              "Thông Báo",
-              `Hệ thống đã xóa sản phẩm này.`,
+              "Thông Báo!",
+              `Hệ thống đã xóa dữ liệu này.`,
               "success"
-            ).then(dispatch(setProduct(res)));
+            ).then(dispatch(acctionDeleteProduct(item.id)));
             return;
           }
-          Swal.fire("Thông Báo", `Lỗi! Hệ thống đang xảy ra lỗi.`, "error");
+          Swal.fire("Thông Báo!", `Lỗi! Hệ thống đang xảy ra lỗi.`, "error");
         });
       }
     });
@@ -50,28 +50,23 @@ export default function ItemProduct({ row }) {
       console.log("res", res);
       if (res.success) {
         Swal.fire(
-          "Thông Báo",
-          `Hệ thống đã ${action ? "ẩn" : "hiện"} sản phẩm này.`,
+          "Thông Báo!",
+          `Hệ thống đã ${action ? "ẩn" : "hiện"} dữ liệu này.`,
           "success"
-        ).then(dispatch(setProduct(res)));
+        ).then(dispatch(acctionUpdateProduct(res, index)));
         return;
       }
-      Swal.fire("Thông Báo", `Lỗi! Hệ thống đang xảy ra lỗi.`, "error");
+      Swal.fire("Thông Báo!", `Lỗi! Hệ thống đang xảy ra lỗi.`, "error");
     });
   };
 
   return (
     <>
-      <AlertNotication
-        severity={severity}
-        setSuccess={setSuccess}
-        success={success}
-        message={message}
-      />
       <FormUpdateProduct
         item={row}
         open={open}
         handleClose={handleCloseUpdate}
+        index={index}
       />
       <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
         <TableCell key={"img"} align={"center"} className="border-r-2">

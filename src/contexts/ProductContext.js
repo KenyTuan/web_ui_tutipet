@@ -7,6 +7,9 @@ export const LOADING_PRODUCTS_ADMIN_SUCCESS = "LOADING_PRODUCTS_ADMIN_SUCCESS";
 export const LOADING_PRODUCTS_ERROR = "LOADING_PRODUCTS_ERROR";
 export const SET_ROW_PRODUCTS = "SET_ROW_PRODUCTS";
 export const ADĐ_PRODUCT = "ADĐ_PRODUCT";
+export const ADD_PRODUCT = "ADD_PRODUCT";
+export const UPDATE_PRODUCT = "UPDATE_PRODUCT";
+export const DELETE_PRODUCT = "DELETE_PRODUCT";
 
 const ProductContext = createContext();
 
@@ -53,6 +56,27 @@ export function setProduct(response) {
   return {
     type: ADĐ_PRODUCT,
     payload: response.data,
+  };
+}
+
+export function acctionAddProduct(response) {
+  return {
+    type: ADD_PRODUCT,
+    payload: response.data,
+  };
+}
+
+export function acctionUpdateProduct(response, index) {
+  return {
+    type: UPDATE_PRODUCT,
+    payload: { updateProduct: response.data, index: index },
+  };
+}
+
+export function acctionDeleteProduct(id) {
+  return {
+    type: DELETE_PRODUCT,
+    payload: id,
   };
 }
 
@@ -111,6 +135,26 @@ const productReducer = (state, action) => {
         row_page: 5,
         loading: true,
         error: null,
+      };
+    case ADD_PRODUCT:
+      return {
+        ...state,
+        productListAdmin: [...state.productListAdmin, action.payload],
+      };
+    case UPDATE_PRODUCT:
+      const { updateProduct, index } = action.payload;
+      const newProductListAdmin = [...state.productListAdmin];
+      newProductListAdmin[index] = updateProduct;
+      return {
+        ...state,
+        productListAdmin: newProductListAdmin,
+      };
+    case DELETE_PRODUCT:
+      return {
+        ...state,
+        productListAdmin: state.productListAdmin.filter(
+          (item) => item.id !== action.payload
+        ),
       };
     default:
       return state;

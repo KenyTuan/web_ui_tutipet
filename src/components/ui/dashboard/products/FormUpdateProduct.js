@@ -1,5 +1,8 @@
-import { addProduct, updateProduct } from "@/api/ProductClient";
-import { setProduct, useProductContext } from "@/contexts/ProductContext";
+import { fetchByid, updateProduct } from "@/api/ProductClient";
+import {
+  acctionUpdateProduct,
+  useProductContext,
+} from "@/contexts/ProductContext";
 import { useProductTypeContext } from "@/contexts/ProductTypeContext";
 import {
   Box,
@@ -24,7 +27,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 
-export default function FormUpdateProduct({ item, open, handleClose }) {
+export default function FormUpdateProduct({ item, open, handleClose, index }) {
   const { dispatch } = useProductContext();
   const { productTypeState } = useProductTypeContext();
   const { productTypeList } = productTypeState;
@@ -225,12 +228,24 @@ export default function FormUpdateProduct({ item, open, handleClose }) {
         },
         item.id
       ).then((res) => {
-        handleCloseForm();
-        Swal.fire(
-          "Cập Nhật Thành Công!",
-          `Hệ thống đã cập nhật thành công.`,
-          "success"
-        ).then(dispatch(setProduct(res)));
+        if (res.success) {
+          fetchByid(res.data.id).then((res) => {
+            if (res.success) {
+              handleCloseForm();
+              Swal.fire(
+                "Thông Báo!",
+                `Hệ thống đã cập nhật dữ liệu thành công.`,
+                "success"
+              ).then(dispatch(acctionUpdateProduct(res, index)));
+            } else {
+              Swal.fire("Thông Báo!", `Hệ thống đã xảy ra lỗi.`, "error");
+            }
+            return;
+          });
+        } else {
+          Swal.fire("Thông Báo!", `Hệ thống đã xảy ra lỗi.`, "error");
+          return;
+        }
       });
       return;
     } else {

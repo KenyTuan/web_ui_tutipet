@@ -100,13 +100,7 @@ export default function ProductList() {
         success={success}
         message={message}
       />
-      <FormAddProduct
-        open={open}
-        handleClose={handleCloseAdd}
-        setSuccess={setSuccess}
-        setMessage={setMessage}
-        setSeverity={setSeverity}
-      />
+      <FormAddProduct open={open} handleClose={handleCloseAdd} />
       <Paper sx={{ width: "100%" }}>
         <Typography
           gutterBottom
@@ -149,8 +143,8 @@ export default function ProductList() {
           {productListAdmin
             // .filter((item) => )
             ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-            .map((row) => (
-              <ItemProduct row={row} key={row.id} />
+            .map((row, index) => (
+              <ItemProduct row={row} key={row.id} index={index} />
             ))}
         </Board>
         <TablePagination

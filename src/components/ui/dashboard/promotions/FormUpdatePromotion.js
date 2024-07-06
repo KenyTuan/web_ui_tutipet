@@ -250,21 +250,17 @@ export default function FormUpdatePromotion({
             if (res.success) {
               handleCloseForm();
               Swal.fire(
-                "Cập Nhật Thành Công!",
-                `Hệ thống đã cập nhật thành công.`,
+                "Thông báo!",
+                `Hệ thống đã cập nhật dữ liệu thành công.`,
                 "success"
               ).then(dispatchPromotion(acctionUpdatePromotion(res, index)));
             } else {
-              Swal.fire(
-                "Cập Nhật Thất Bại!",
-                `Hệ thống đã xảy ra lỗi.`,
-                "error"
-              );
+              Swal.fire("Thông báo!", `Hệ thống đã xảy ra lỗi.`, "error");
             }
           });
           return;
         } else {
-          Swal.fire("Cập Nhật Thất Bại!", `Hệ thống đã xảy ra lỗi.`, "error");
+          Swal.fire("Thông báo!", `Hệ thống đã xảy ra lỗi.`, "error");
           return;
         }
       });

@@ -52,7 +52,7 @@ export default function ItemPromotion({ row, index }) {
         if (res.success) {
           Swal.fire(
             "Thông Báo",
-            `Hệ thống đã ${action ? "ẩn" : "hiện"} chương trình này.`,
+            `Hệ thống đã ${action ? "ẩn" : "hiện"} dữ liệu này.`,
             "success"
           ).then(dispatchPromotion(acctionUpdatePromotion(res, index)));
           return;
