@@ -37,8 +37,10 @@ export default function SeletedProduct({
   const { productListAdmin } = productState;
   const [checked, setChecked] = useState([]);
 
+  console.log("productSelected", checked);
+
   useEffect(() => {
-    setChecked(productSelected);
+    setChecked([...productSelected]);
   }, [productSelected]);
 
   const handleChangePet = (e) => {
@@ -47,18 +49,16 @@ export default function SeletedProduct({
   };
 
   const handleToggle = (value) => () => {
-    const currentIndex = checked.indexOf(value);
-    const newChecked = [...checked];
+    const isChecked = checked.some((item) => item.id === value.id);
 
-    if (currentIndex === -1) {
-      newChecked.push(value);
+    if (!isChecked) {
+      const newChecked = [...checked, value];
+      setChecked(newChecked);
     } else {
-      newChecked.splice(currentIndex, 1);
+      const newChecked = checked.filter((item) => item.id !== value.id);
+      setChecked(newChecked);
     }
-
-    setChecked(newChecked);
   };
-
   const handleAppyChecked = () => {
     setProductSelected(checked);
     handleClose();
@@ -77,6 +77,10 @@ export default function SeletedProduct({
       <List dense component="div" role="list">
         {items.map((value) => {
           const labelId = `transfer-list-item-${value.id}-label`;
+          console.log(
+            "first",
+            checked.filter((item) => item.id === value.id)
+          );
           return (
             <ListItemButton
               key={value.id}
@@ -85,7 +89,9 @@ export default function SeletedProduct({
             >
               <ListItemIcon>
                 <Checkbox
-                  checked={checked.indexOf(value) !== -1}
+                  checked={
+                    checked.filter((item) => item.id === value.id).length !== 0
+                  }
                   tabIndex={-1}
                   disableRipple
                   inputProps={{

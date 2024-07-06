@@ -135,8 +135,8 @@ export default function PromotionList() {
         <Board columns={columns}>
           {promotionListAdmin
             ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-            .map((row) => (
-              <ItemPromotion row={row} key={row.id} />
+            .map((row, index) => (
+              <ItemPromotion row={row} key={row.id} index={index} />
             ))}
         </Board>
         <TablePagination

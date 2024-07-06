@@ -37,7 +37,7 @@ export async function fetchListPromotion(
 export async function fetchPromotionByid(id) {
   try {
     const response = await axios.get(PROMOTION_URL + `/${id}`, {
-      headers: defaultHeaders(),
+      headers: headersWithAuthorization(),
     });
     console.log("Response JSON: " + JSON.stringify(response.data));
     return { success: true, data: response.data };
@@ -49,6 +49,45 @@ export async function fetchPromotionByid(id) {
 export async function addPromotion(req) {
   try {
     const response = await axios.post(PROMOTION_URL, req, {
+      headers: headersWithAuthorization(),
+    });
+    console.log("Response JSON: " + JSON.stringify(response.data));
+    return { success: true, data: response.data };
+  } catch (error) {
+    console.error("Error add product", error);
+    return handleError(error);
+  }
+}
+
+export async function updatePromotion(id, req) {
+  try {
+    const response = await axios.put(PROMOTION_URL + `/${id}`, req, {
+      headers: headersWithAuthorization(),
+    });
+    console.log("Response JSON: " + JSON.stringify(response.data));
+    return { success: true, data: response.data };
+  } catch (error) {
+    console.error("Error add product", error);
+    return handleError(error);
+  }
+}
+
+export async function deletePromotion(id) {
+  try {
+    const response = await axios.delete(PROMOTION_URL + `/${id}`, {
+      headers: headersWithAuthorization(),
+    });
+    console.log("Response JSON: " + JSON.stringify(response.data));
+    return { success: true, data: response.data };
+  } catch (error) {
+    console.error("Error add product", error);
+    return handleError(error);
+  }
+}
+
+export async function updatePromotionStatus(id, enable) {
+  try {
+    const response = await axios.patch(PROMOTION_URL + `/${id}`, enable, {
       headers: headersWithAuthorization(),
     });
     console.log("Response JSON: " + JSON.stringify(response.data));

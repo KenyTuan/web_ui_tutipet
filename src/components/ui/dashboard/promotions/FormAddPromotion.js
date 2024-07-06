@@ -1,6 +1,3 @@
-import { addProduct } from "@/api/ProductClient";
-import { setProduct, useProductContext } from "@/contexts/ProductContext";
-import { useProductTypeContext } from "@/contexts/ProductTypeContext";
 import {
   Avatar,
   Box,
@@ -28,11 +25,12 @@ import {
 import dayjs from "dayjs";
 import React, { useMemo, useState } from "react";
 import SeletedProduct from "./SeletedProduct";
-import { addPromotion } from "@/api/PromotionClient";
+import { addPromotion, fetchPromotionByid } from "@/api/PromotionClient";
 import {
   acctionAddPromotion,
   usePromotionContext,
 } from "@/contexts/PromotionContext";
+import Swal from "sweetalert2";
 
 const style = {
   position: "absolute",
@@ -54,7 +52,7 @@ export default function FormAddPromotion({
   setSeverity,
 }) {
   const minDateTime = useMemo(() => {
-    return dayjs().add(1, "day").format("YYYY-MM-DDTHH:mm");
+    return dayjs().add(1, "day").startOf("day").format("YYYY-MM-DDTHH:mm");
   }, []);
   const [openSelection, setOpenSelection] = useState(false);
   const handleOpenSelection = () => setOpenSelection(true);
@@ -74,7 +72,7 @@ export default function FormAddPromotion({
   const [discountType, setDiscountType] = useState("");
   const [discountTypeError, setDiscountTypeError] = useState(false);
   const [error, setError] = useState("");
-  const { promotionState, dispatchPromotion } = usePromotionContext();
+  const { dispatchPromotion } = usePromotionContext();
 
   const handleChangeTarget = (e) => {
     setTarget(e.target.value);
@@ -133,9 +131,7 @@ export default function FormAddPromotion({
     if (e.target.validity.valid) {
       setFromTimeError(false);
       const newToTime = dayjs(value).add(1, "hour").format("YYYY-MM-DDTHH:mm");
-      setMinToTime((prevToTime) => {
-        return dayjs(prevToTime).isBefore(newToTime) ? newToTime : prevToTime;
-      });
+      setMinToTime(newToTime);
     } else {
       console.log("sss1");
       setFromTimeError(true);
@@ -159,6 +155,7 @@ export default function FormAddPromotion({
     setTarget("");
     setDiscountType("");
     setValue("");
+    setProductSelected([]);
     setFromTimeError(false);
     setToTimeError(false);
     setNameError(false);
@@ -194,10 +191,10 @@ export default function FormAddPromotion({
       setValueError(true);
       return;
     }
-    // if (discountType === "PERCENTAGE" && value > 0 && value <= 100) {
-    //   setValueError(true);
-    //   return;
-    // }
+    if (discountType === "PERCENTAGE" && (value < 0 || value > 100)) {
+      setValueError(true);
+      return;
+    }
     if (target === "PRODUCT" && productSelected.length === 0) {
       setError("Vui lòng chọn sản phẩm cho sự kiện!");
       return;
@@ -210,13 +207,30 @@ export default function FormAddPromotion({
         discountType,
         fromTime: dayjs(fromTime).toISOString(),
         toTime: dayjs(toTime).toISOString(),
-        productIds: productSelected,
+        productIds: productSelected.map((item) => item.id),
       }).then((res) => {
-        dispatchPromotion(acctionAddPromotion(res));
-        setMessage("Đã cập nhật thành công!");
-        setSeverity("success");
-        setSuccess(true);
-        handleCloseForm();
+        if (res.success) {
+          fetchPromotionByid(res.data.id).then((res) => {
+            if (res.success) {
+              handleCloseForm();
+              Swal.fire(
+                "Cập Nhật Thành Công!",
+                `Hệ thống đã cập nhật thành công.`,
+                "success"
+              ).then(dispatchPromotion(acctionAddPromotion(res)));
+            } else {
+              Swal.fire(
+                "Cập Nhật Thất Bại!",
+                `Hệ thống đã xảy ra lỗi.`,
+                "error"
+              );
+            }
+          });
+          return;
+        } else {
+          Swal.fire("Cập Nhật Thất Bại!", `Hệ thống đã xảy ra lỗi.`, "error");
+          return;
+        }
       });
       return;
     } else {
