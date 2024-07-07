@@ -17,17 +17,10 @@ export function loadingPromotions() {
   return { type: LOADING_PROMOTIONS };
 }
 
-export function setPromotions(response, page, search, sortBy, sortOrder) {
+export function loadingPromotionsSuccess(response) {
   return {
     type: LOADING_PROMOTIONS_SUCCESS,
-    payload: {
-      promotions: response.data.content,
-      total_pages: response.data.totalPages,
-      page,
-      search,
-      sortBy,
-      sortOrder,
-    },
+    payload: response.data,
   };
 }
 
@@ -90,18 +83,7 @@ const promotionReducer = (state, action) => {
     case LOADING_PROMOTIONS_SUCCESS:
       return {
         ...state,
-        promotionList: {
-          ...state.promotionList,
-          [action.payload.page]: {
-            data: action.payload.promotions,
-            timestamp: Date.now(),
-            search: action.payload.search,
-            sortBy: action.payload.sortBy,
-            sortOrder: action.payload.sortOrder,
-          },
-        },
-        total_pages: action.payload.total_pages,
-        page: action.payload.page,
+        promotionList: action.payload,
         loading: false,
       };
     case LOADING_PROMOTIONS_ADMIN_SUCCESS:
@@ -109,16 +91,6 @@ const promotionReducer = (state, action) => {
         ...state,
         promotionListAdmin: action.payload,
         loading: true,
-      };
-    case SET_ROW_PROMOTIONS:
-      return {
-        ...state,
-        promotionList: {},
-        loading: true,
-        error: null,
-        row_page: action.payload,
-        total_pages: 1,
-        page: 1,
       };
     case ADD_PROMOTION:
       return {
@@ -146,11 +118,8 @@ const promotionReducer = (state, action) => {
 };
 
 const initialState = {
-  promotionList: {},
+  promotionList: [],
   promotionListAdmin: [],
-  total_pages: 1,
-  page: 1,
-  row_page: 5,
   loading: true,
   error: null,
 };

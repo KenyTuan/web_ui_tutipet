@@ -11,6 +11,14 @@ import { loadingCarts, setCarts, useCartContext } from "@/contexts/CartContext";
 import { getList } from "@/api/CartClient";
 import { Box, SpeedDial, SpeedDialAction } from "@mui/material";
 import { AccountBox, ListAlt, Person, Visibility } from "@mui/icons-material";
+import {
+  loadingFailPromotion,
+  loadingPromotions,
+  loadingPromotionsSuccess,
+  usePromotionContext,
+} from "@/contexts/PromotionContext";
+import { fetchLiveAndUpcomingPromotions } from "@/api/PromotionClient";
+import dayjs from "dayjs";
 
 const links = [
   { name: "Trang Chủ", href: "/" },
@@ -32,6 +40,19 @@ export default function Header() {
   const { cartState, dispatchCart } = useCartContext();
   const { isLoggedIn, user } = state;
   const { cartList } = cartState;
+  const { promotionState, dispatchPromotion } = usePromotionContext();
+  const { promotionList, loading, error } = promotionState;
+
+  const fetchPromotion = useCallback(async () => {
+    dispatchPromotion(loadingPromotions());
+
+    const response = await fetchLiveAndUpcomingPromotions();
+    if (response.success) {
+      dispatchPromotion(loadingPromotionsSuccess(response));
+    } else {
+      dispatchPromotion(loadingFailPromotion(response.error));
+    }
+  }, [dispatchPromotion]);
 
   const handleLogout = () => {
     logoutUser();
@@ -54,129 +75,164 @@ export default function Header() {
 
   useEffect(() => {
     fetchCart();
-  }, [fetchCart]);
+    fetchPromotion();
+  }, [fetchCart, fetchPromotion]);
+
+  console.log("promotion", promotionList);
 
   return (
-    <div className="p-2 py-4 bg-white border rounded-b-2xl shadow-lg z-50 fixed top-0 left-0 right-0">
-      <div className="flex justify-between">
-        <div className="justify-center flex items-center px-4">
-          <Link href={"/"}>
-            <Image src="/logo.png" alt="Logo Shop" width={150} height={150} />
-            <p className="font-bold text-[#CA9D7C] text-center text-2xl">
-              TuTiPet Shop
-            </p>
-          </Link>
-        </div>
-
-        <div className="flex justify-end items-end">
-          <div></div>
-          <nav className="h-[50%] flex flex-row justify-center items-center p-2">
-            {links.map((link, index) => {
-              return (
-                <Link key={index} href={link.href}>
-                  <div
-                    className={clsx("mx-2 flex-none py-2 px-5 rounded-md", {
-                      "bg-[#B45F30]": pathname === link.href,
-                      "bg-[#CA9D7C] hover:bg-[#B45F30]": pathname !== link.href,
-                    })}
-                  >
-                    <p className="hidden md:block text-white text-sm font-medium uppercase">
-                      {link.name}
-                    </p>
+    <>
+      <div className=" border rounded-b-2xl shadow-lg z-50 fixed top-0 left-0 right-0">
+        {promotionList.length !== 0 && (
+          <div className="bg-black p-1">
+            {promotionList
+              .filter((item) => item.target == "ORDER")
+              .map((item) => {
+                const discount =
+                  item?.discountType !== "PERCENTAGE"
+                    ? `${item?.value}.000 VND`
+                    : `${item?.value}%`;
+                return (
+                  <div key={item.id} className="flex flex-row">
+                    <p className="text-white font-bold">{`${item.name} `}</p>
+                    <p className="text-red-400 font-bold pl-1">{` giảm ${discount}`}</p>
+                    <p className="text-white font-bold pl-1">{`dành riêng cho đơn hàng của bạn. Chương trình diễn ra`}</p>
+                    <p className="text-red-400 font-bold pl-1">{`${dayjs(
+                      item.fromTime
+                    ).format(`DD/MM/YYYY lúc HH[h]mm`)}`}</p>
+                    <p className="text-white font-bold pl-1">{`và kết thúc`}</p>
+                    <p className="text-red-400 font-bold pl-1">{`${dayjs(
+                      item.toTime
+                    ).format(`DD/MM/YYYY lúc HH[h]mm`)}`}</p>
+                    <p className="text-white font-bold">{`. Nhập mã ngay: `}</p>
+                    <p className="text-red-400 font-bold pl-1">{item.code}</p>
                   </div>
-                </Link>
-              );
-            })}
-          </nav>
-        </div>
+                );
+              })}
+          </div>
+        )}
 
-        <div className="flex flex-row px-4 py-6">
-          <Link
-            href={"/carts"}
-            className="px-6 flex justify-center items-center rounded-md mx-2 border-2 "
-          >
-            <span role="img" aria-label="Shopping Cart" className="text-2xl">
-              🛒
-            </span>
-            {isLoggedIn ? (
-              <div className="bg-red-500 w-5 h-5 mb-6 rounded-full flex justify-center items-center">
-                <p className="text-center text-white text-xs">
-                  {cartList.length}
-                </p>
-              </div>
-            ) : (
-              ""
-            )}
-          </Link>
-          {isLoggedIn ? (
-            <button
-              onClick={handleLogout}
-              className="flex justify-center items-center rounded-md mx-2"
-            >
-              <span className="text-sm font-semibold uppercase text-black md:text-lg">
-                Đăng Xuất
-              </span>
-            </button>
-          ) : (
-            <Link
-              href={"/login"}
-              className="flex justify-center items-center rounded-md mx-2"
-            >
-              <span className="text-sm font-semibold uppercase text-black md:text-lg">
-                Đăng Nhập
-              </span>
+        <div className="flex justify-between p-2 py-4 bg-white">
+          <div className="justify-center flex items-center px-4">
+            <Link href={"/"}>
+              <Image src="/logo.png" alt="Logo Shop" width={150} height={150} />
+              <p className="font-bold text-[#CA9D7C] text-center text-2xl">
+                TuTiPet Shop
+              </p>
             </Link>
-          )}
-          {isLoggedIn && (
-            <Box>
-              <SpeedDial
-                ariaLabel="SpeedDial controlled open example"
-                sx={{
-                  position: "fixed",
-                  bottom: 16,
-                  right: 16,
-                  zIndex: 11,
-                }}
-                icon={
-                  <div
-                    style={{
-                      backgroundColor: "#FC9C55",
-                      borderRadius: "50%",
-                      width: "100%",
-                      height: "100%",
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
-                  >
-                    <Person />
-                  </div>
-                }
-                onClose={() => setOpen(false)}
-                onOpen={() => setOpen(true)}
-                open={open}
+          </div>
+
+          <div className="flex justify-end items-end">
+            <div></div>
+            <nav className="h-[50%] flex flex-row justify-center items-center p-2">
+              {links.map((link, index) => {
+                return (
+                  <Link key={index} href={link.href}>
+                    <div
+                      className={clsx("mx-2 flex-none py-2 px-5 rounded-md", {
+                        "bg-[#B45F30]": pathname === link.href,
+                        "bg-[#CA9D7C] hover:bg-[#B45F30]":
+                          pathname !== link.href,
+                      })}
+                    >
+                      <p className="hidden md:block text-white text-sm font-medium uppercase">
+                        {link.name}
+                      </p>
+                    </div>
+                  </Link>
+                );
+              })}
+            </nav>
+          </div>
+
+          <div className="flex flex-row px-4 py-6">
+            <Link
+              href={"/carts"}
+              className="px-6 flex justify-center items-center rounded-md mx-2 border-2 "
+            >
+              <span role="img" aria-label="Shopping Cart" className="text-2xl">
+                🛒
+              </span>
+              {isLoggedIn ? (
+                <div className="bg-red-500 w-5 h-5 mb-6 rounded-full flex justify-center items-center">
+                  <p className="text-center text-white text-xs">
+                    {cartList.length}
+                  </p>
+                </div>
+              ) : (
+                ""
+              )}
+            </Link>
+            {isLoggedIn ? (
+              <button
+                onClick={handleLogout}
+                className="flex justify-center items-center rounded-md mx-2"
               >
-                {actions.map((action) => (
-                  <SpeedDialAction
-                    key={action.name}
-                    icon={action.icon}
-                    tooltipTitle={action.name}
-                    onClick={() => router.push(action.href)}
-                  />
-                ))}
-                {user.role === "ADMIN" && (
-                  <SpeedDialAction
-                    key={"View Admin"}
-                    icon={<Visibility />}
-                    tooltipTitle={"View Admin"}
-                    onClick={() => router.push("/dashboard")}
-                  />
-                )}
-              </SpeedDial>
-            </Box>
-          )}
+                <span className="text-sm font-semibold uppercase text-black md:text-lg">
+                  Đăng Xuất
+                </span>
+              </button>
+            ) : (
+              <Link
+                href={"/login"}
+                className="flex justify-center items-center rounded-md mx-2"
+              >
+                <span className="text-sm font-semibold uppercase text-black md:text-lg">
+                  Đăng Nhập
+                </span>
+              </Link>
+            )}
+            {isLoggedIn && (
+              <Box>
+                <SpeedDial
+                  ariaLabel="SpeedDial controlled open example"
+                  sx={{
+                    position: "fixed",
+                    bottom: 16,
+                    right: 16,
+                    zIndex: 11,
+                  }}
+                  icon={
+                    <div
+                      style={{
+                        backgroundColor: "#FC9C55",
+                        borderRadius: "50%",
+                        width: "100%",
+                        height: "100%",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Person />
+                    </div>
+                  }
+                  onClose={() => setOpen(false)}
+                  onOpen={() => setOpen(true)}
+                  open={open}
+                >
+                  {actions.map((action) => (
+                    <SpeedDialAction
+                      key={action.name}
+                      icon={action.icon}
+                      tooltipTitle={action.name}
+                      onClick={() => router.push(action.href)}
+                    />
+                  ))}
+                  {user.role === "ADMIN" && (
+                    <SpeedDialAction
+                      key={"View Admin"}
+                      icon={<Visibility />}
+                      tooltipTitle={"View Admin"}
+                      onClick={() => router.push("/dashboard")}
+                    />
+                  )}
+                </SpeedDial>
+              </Box>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

@@ -34,6 +34,18 @@ export async function fetchListPromotion(
   }
 }
 
+export async function fetchLiveAndUpcomingPromotions() {
+  try {
+    const response = await axios.get(PROMOTION_URL + `/live-and-upcoming`, {
+      headers: headersWithAuthorization(),
+    });
+    console.log("Response JSON: " + JSON.stringify(response.data));
+    return { success: true, data: response.data };
+  } catch (error) {
+    return handleError(error);
+  }
+}
+
 export async function fetchPromotionByid(id) {
   try {
     const response = await axios.get(PROMOTION_URL + `/${id}`, {
@@ -88,6 +100,19 @@ export async function deletePromotion(id) {
 export async function updatePromotionStatus(id, enable) {
   try {
     const response = await axios.patch(PROMOTION_URL + `/${id}`, enable, {
+      headers: headersWithAuthorization(),
+    });
+    console.log("Response JSON: " + JSON.stringify(response.data));
+    return { success: true, data: response.data };
+  } catch (error) {
+    console.error("Error add product", error);
+    return handleError(error);
+  }
+}
+
+export async function validateCodePromotion(code) {
+  try {
+    const response = await axios.patch(PROMOTION_URL + `/${code}/validate`, {
       headers: headersWithAuthorization(),
     });
     console.log("Response JSON: " + JSON.stringify(response.data));

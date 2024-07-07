@@ -1,13 +1,8 @@
-import { addProduct, updateProduct } from "@/api/ProductClient";
-import { setProduct, useProductContext } from "@/contexts/ProductContext";
-import { useProductTypeContext } from "@/contexts/ProductTypeContext";
+import { useProductContext } from "@/contexts/ProductContext";
 import {
   Avatar,
   Box,
   Button,
-  CardActionArea,
-  CardMedia,
-  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -17,7 +12,6 @@ import {
   Grid,
   InputAdornment,
   InputLabel,
-  LinearProgress,
   List,
   ListItem,
   ListItemAvatar,
@@ -33,7 +27,6 @@ import React, { useEffect, useMemo, useState } from "react";
 import SeletedProduct from "./SeletedProduct";
 import dayjs from "dayjs";
 import {
-  acctionAddPromotion,
   acctionUpdatePromotion,
   usePromotionContext,
 } from "@/contexts/PromotionContext";
@@ -56,9 +49,6 @@ export default function FormUpdatePromotion({
   item,
   open,
   handleClose,
-  setSuccess,
-  setMessage,
-  setSeverity,
   index,
 }) {
   const minDateTime = useMemo(() => {
@@ -83,8 +73,6 @@ export default function FormUpdatePromotion({
   const [discountTypeError, setDiscountTypeError] = useState(false);
   const [error, setError] = useState("");
   const { dispatchPromotion } = usePromotionContext();
-  const { productState } = useProductContext();
-  const { productListAdmin } = productState;
 
   console.log("products", item.products);
 

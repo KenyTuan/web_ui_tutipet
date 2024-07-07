@@ -42,6 +42,8 @@ export default function FormInfoOrder({ open, setOpen, setInfo }) {
   const [address, setAddress] = useState("");
   const [error, setError] = useState("");
 
+  console.log(provinces);
+
   const fetchProvinces = useCallback(async () => {
     try {
       const response = await axios.get(

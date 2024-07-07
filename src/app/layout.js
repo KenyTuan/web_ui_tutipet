@@ -6,6 +6,7 @@ import { ProductTypeProvider } from "@/contexts/ProductTypeContext";
 import { CartContextProvider } from "@/contexts/CartContext";
 import { LocationProvider } from "@/contexts/LocationContext";
 import { PromotionProvider } from "@/contexts/PromotionContext";
+import { OrderProvider } from "@/contexts/OrderContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,7 +24,9 @@ export default function RootLayout({ children }) {
             <ProductProvider>
               <CartContextProvider>
                 <PromotionProvider>
-                  <LocationProvider>{children}</LocationProvider>
+                  <OrderProvider>
+                    <LocationProvider>{children}</LocationProvider>
+                  </OrderProvider>
                 </PromotionProvider>
               </CartContextProvider>
             </ProductProvider>
