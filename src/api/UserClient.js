@@ -3,7 +3,9 @@ import { USER_URL, headersWithAuthorization } from "./Config";
 
 export async function fetchList() {
   try {
-    const response = await axios.get(USER_URL);
+    const response = await axios.get(USER_URL, {
+      headers: { ...headersWithAuthorization() },
+    });
     return { success: true, data: response.data };
   } catch (error) {
     return handleError(error);

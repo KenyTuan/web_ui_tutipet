@@ -39,6 +39,7 @@ import { fetchListProductType } from "@/api/ProductTypeClient";
 import { useCallback } from "react";
 import AlertNotication from "@/components/AlertNotication";
 import ItemUser from "./ItemUser";
+import { useUserContext } from "@/contexts/UserContext";
 // import Swal from "sweetalert2";
 // import AddForm from "./AddForm";
 // import EditForm from "./EditForm";
@@ -69,72 +70,22 @@ const columns = [
 ];
 
 export default function UserList() {
-  const [searchParams, updateSearchParams] = useSearchParams();
   const [page, setPage] = useState(0);
-  const [search, setSearch] = useState("");
-  const { productState, dispatch } = useProductContext();
-  const { productList, row_page, loading, error } = productState;
-  const [totalElements, setTotalElements] = useState(0);
-  const { productTypeState, dispatchProductType } = useProductTypeContext();
+  const { userState, dispatchUser } = useUserContext();
+  const { userListAdmin } = userState;
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [open, setOpen] = useState(false);
   const [success, setSuccess] = useState(false);
   const [message, setMessage] = useState("");
   const [severity, setSeverity] = useState("success");
-
-  const fetchProducts = React.useCallback(
-    async (search, page, rowsPerPage) => {
-      dispatch(loadingProducts());
-
-      const response = await fetchListProduct(
-        search,
-        page,
-        "id",
-        "",
-        rowsPerPage
-      );
-      if (response.success) {
-        dispatch(setProducts(response, page, search));
-        setTotalElements(response.data.totalElements);
-      } else {
-        dispatch(setLoadingFail(response));
-      }
-    },
-    [dispatch]
-  );
-
-  const fetchProductTypes = useCallback(async () => {
-    dispatchProductType(loadingProductTypes());
-
-    const response = await fetchListProductType();
-    if (response.success) {
-      dispatchProductType(setProductTypes(response));
-    } else {
-      dispatchProductType(loadingFail(response));
-    }
-  }, [dispatchProductType]);
-
-  useEffect(() => {
-    fetchProductTypes();
-  }, [fetchProductTypes]);
-
-  useEffect(() => {
-    const currentPageData = productState.productList[page];
-    if (
-      !currentPageData ||
-      Date.now() - currentPageData.timestamp > 300000 ||
-      currentPageData?.search !== search
-    ) {
-      fetchProducts(search, page, row_page);
-    }
-  }, [fetchProducts, page, productState.productList, row_page, search]);
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
 
   const handleChangeRowsPerPage = (event) => {
-    dispatch(setRowPage(+event.target.value));
     setPage(0);
+    setRowsPerPage(event.target.value);
   };
 
   const handleOpenAdd = () => {
@@ -142,8 +93,7 @@ export default function UserList() {
   };
 
   const handleCloseAdd = () => setOpen(false);
-
-  const currentPageData = productList[page] ? productList[page].data : [];
+  console.log("userListAdmin", userListAdmin);
 
   return (
     <>
@@ -155,33 +105,22 @@ export default function UserList() {
           sx={{ padding: "20px" }}
           className="font-bold"
         >
-          Danh Sách Người Dùng
+          Danh sách người dùng
         </Typography>
         <Divider />
-        <Box height={10} />
-        <Stack direction="row" spacing={2} className="mx-4">
-          <Autocomplete
-            disablePortal
-            id="combo-box-demo"
-            options={[]}
-            sx={{ width: "40%" }}
-            getOptionLabel={(rows) => rows.name || ""}
-            renderInput={(params) => (
-              <TextField {...params} size="small" label="Tìm ngươi dùng...." />
-            )}
-          />
-        </Stack>
         <Box height={25} />
         <Board columns={columns}>
-          {currentPageData?.map((row) => (
-            <ItemUser row={row} key={row.id} />
-          ))}
+          {userListAdmin
+            ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+            .map((row, index) => (
+              <ItemUser row={row} key={row.id} index={index} />
+            ))}
         </Board>
         <TablePagination
           rowsPerPageOptions={[5, 10, 25, 100]}
           component="div"
-          count={totalElements}
-          rowsPerPage={row_page}
+          count={userListAdmin.length}
+          rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}

@@ -19,8 +19,10 @@ import ItemProductOrder from "./ItemProductOrder";
 import dayjs from "dayjs";
 import Swal from "sweetalert2";
 import { createPaymentVnPay } from "@/api/PaymentClient";
+import { useRouter } from "next/navigation";
 
 export default function ValidateOrder({ id }) {
+  const router = useRouter();
   const [searchParams] = useSearchParams();
   const [code, setCode] = useState("");
   const { dispatchOrder } = useOrderContext();
@@ -152,6 +154,7 @@ export default function ValidateOrder({ id }) {
                       <Typography
                         variant="body1"
                         sx={{ fontSize: 14, fontWeight: 700 }}
+                        onClick={() => router.replace("/")}
                       >
                         Quay Về
                       </Typography>

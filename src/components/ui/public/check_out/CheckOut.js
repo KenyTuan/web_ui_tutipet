@@ -31,6 +31,8 @@ export default function CheckOut() {
   const [validateCode, setValidateCode] = useState(false);
   const [totalOrder, setTotalOrder] = useState(0);
   const { dispatchOrder } = useOrderContext();
+  const [totalPre, setTotalPre] = useState(0);
+  const [promotion, setPromotion] = useState(null);
   const router = useRouter();
 
   console.log("cartItems", cartItems);
@@ -40,6 +42,7 @@ export default function CheckOut() {
       return total + item.product.price * item.quantity;
     }, 0);
     setTotalOrder(totalAmount);
+    setTotalPre(totalAmount);
   }, [cartItems]);
 
   useEffect(() => {
@@ -66,7 +69,7 @@ export default function CheckOut() {
     createOrder({
       phone: info.phone,
       address: info.address,
-      code: code,
+      promotionId: promotion?.id ?? 0,
       productOrders: cartItems.map((item) => ({
         product_id: item.product.id,
         quantity: item.quantity,
@@ -96,14 +99,14 @@ export default function CheckOut() {
     if (!code) {
       return;
     }
-    validateCodePromotion(code).then((res) => {
+    validateCodePromotion({ code }).then((res) => {
       if (res.success) {
-        if (res.data.discountType === "") {
+        setPromotion(res.data);
+        if (res.data.discountType === "PERCENTAGE") {
           setTotalOrder(totalOrder - (totalOrder * res.data.value) / 100);
         } else {
           setTotalOrder(totalOrder - res.data.value);
         }
-        setCode("");
         return;
       } else {
         const totalAmount = cartItems.reduce((total, item) => {
@@ -115,6 +118,14 @@ export default function CheckOut() {
         return;
       }
     });
+  };
+
+  console.log("total", totalPre);
+
+  const handleRemovePromotion = () => {
+    setCode("");
+    setTotalOrder(totalPre);
+    setPromotion(null);
   };
 
   return (
@@ -167,7 +178,7 @@ export default function CheckOut() {
                               </Box>
                             </Stack>
                           </Grid>
-                          <Grid item xs={12}>
+                          <Grid item xs={9}>
                             <Stack display={"flex"} paddingLeft={2}>
                               <Stack display={"flex"} flexDirection={"col"}>
                                 <Typography fontSize={16} fontStyle={"italic"}>
@@ -175,7 +186,6 @@ export default function CheckOut() {
                                 </Typography>
                                 <Typography
                                   fontSize={16}
-                                  fontStyle={"italic"}
                                   marginBottom={1}
                                   textAlign={"end"}
                                 >
@@ -183,6 +193,16 @@ export default function CheckOut() {
                                 </Typography>
                               </Stack>
                             </Stack>
+                          </Grid>
+                          <Grid item xs={3}>
+                            <Box>
+                              <Button
+                                variant="text"
+                                onClick={() => setOpen(true)}
+                              >
+                                Thay Đổi
+                              </Button>
+                            </Box>
                           </Grid>
                         </Grid>
                       ) : (
@@ -210,40 +230,63 @@ export default function CheckOut() {
                       )}
                     </Grid>
                     <Grid item xs={12}>
-                      <Stack
-                        display={"flex"}
-                        direction={"row"}
-                        justifyContent={"right"}
-                      >
-                        <TextField
-                          label="Nhập mã giảm giá"
-                          variant="outlined"
-                          size="small"
-                          value={code}
-                          onChange={(e) => setCode(e.target.value)}
-                        />
-                        <Button
-                          size="small"
-                          variant="contained"
-                          style={{ backgroundColor: "#FC9C55", marginLeft: 10 }}
-                        >
-                          <Typography
-                            variant="body2"
-                            sx={{ fontSize: 10, fontWeight: 700 }}
-                            onClick={handleValidateCode}
+                      {!promotion ? (
+                        <>
+                          <Stack
+                            display={"flex"}
+                            direction={"row"}
+                            justifyContent={"right"}
                           >
-                            Áp dụng
-                          </Typography>
-                        </Button>
-                      </Stack>
-                      {validateCode && (
-                        <Typography
-                          color="error"
-                          variant="body2"
-                          sx={{ mb: 2 }}
+                            <TextField
+                              label="Nhập mã giảm giá"
+                              variant="outlined"
+                              size="small"
+                              sx={{ marginRight: 3 }}
+                              value={code}
+                              onChange={(e) => setCode(e.target.value)}
+                            />
+                            <Button
+                              size="small"
+                              variant="contained"
+                              style={{
+                                backgroundColor: "#FC9C55",
+                              }}
+                              onClick={handleValidateCode}
+                            >
+                              <Typography
+                                variant="body2"
+                                sx={{ fontSize: 10, fontWeight: 700 }}
+                              >
+                                Áp dụng
+                              </Typography>
+                            </Button>
+                          </Stack>
+                          {validateCode && (
+                            <Typography
+                              color="error"
+                              variant="body2"
+                              sx={{ mb: 2 }}
+                            >
+                              Mã này bạn đã sử dụng. Vui lòng thử lại sau!
+                            </Typography>
+                          )}
+                        </>
+                      ) : (
+                        <Stack
+                          display={"flex"}
+                          flexDirection={"row"}
+                          justifyContent={"right"}
                         >
-                          Mã này bạn đã sử dụng. Vui lòng thử lại sau!
-                        </Typography>
+                          <Typography fontSize={16} fontStyle={"italic"}>
+                            {code}
+                          </Typography>
+                          <Button
+                            variant="text"
+                            onClick={handleRemovePromotion}
+                          >
+                            Đổi mã
+                          </Button>
+                        </Stack>
                       )}
                     </Grid>
                     <Grid item xs={12}>

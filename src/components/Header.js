@@ -19,6 +19,13 @@ import {
 } from "@/contexts/PromotionContext";
 import { fetchLiveAndUpcomingPromotions } from "@/api/PromotionClient";
 import dayjs from "dayjs";
+import {
+  loadingFailOrder,
+  loadingOrders,
+  loadingOrdersSuccess,
+  useOrderContext,
+} from "@/contexts/OrderContext";
+import { fetchAllOrderByToken } from "@/api/OrderClient";
 
 const links = [
   { name: "Trang Chủ", href: "/" },
@@ -42,6 +49,8 @@ export default function Header() {
   const { cartList } = cartState;
   const { promotionState, dispatchPromotion } = usePromotionContext();
   const { promotionList, loading, error } = promotionState;
+  const { orderState, dispatchOrder } = useOrderContext();
+  const { orderList } = orderState;
 
   const fetchPromotion = useCallback(async () => {
     dispatchPromotion(loadingPromotions());
@@ -58,6 +67,17 @@ export default function Header() {
     logoutUser();
     dispatch(logout());
   };
+
+  const fetchOrder = useCallback(async () => {
+    dispatchOrder(loadingOrders());
+
+    const response = await fetchAllOrderByToken();
+    if (response.success) {
+      dispatchOrder(loadingOrdersSuccess(response));
+    } else {
+      dispatchOrder(loadingFailOrder(response.error));
+    }
+  }, [dispatchOrder]);
 
   console.log("user", user);
 
@@ -76,7 +96,8 @@ export default function Header() {
   useEffect(() => {
     fetchCart();
     fetchPromotion();
-  }, [fetchCart, fetchPromotion]);
+    fetchOrder();
+  }, [fetchCart, fetchOrder, fetchPromotion]);
 
   console.log("promotion", promotionList);
 

@@ -1,7 +1,10 @@
-import React from 'react'
+import OrderList from "@/components/ui/dashboard/orders/OrderList";
+import React from "react";
 
 export default function page() {
   return (
-    <div>page</div>
-  )
+    <div>
+      <OrderList />
+    </div>
+  );
 }

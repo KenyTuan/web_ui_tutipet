@@ -38,6 +38,19 @@ import {
   usePromotionContext,
 } from "@/contexts/PromotionContext";
 import { fetchAllPromotion } from "@/api/PromotionClient";
+import {
+  loadingFailOrder,
+  loadingManagerOrderSuceess,
+  loadingOrders,
+  useOrderContext,
+} from "@/contexts/OrderContext";
+import { fetchAllOrder } from "@/api/OrderClient";
+import {
+  loadingManagerUserSuceess,
+  loadingUsers,
+  useUserContext,
+} from "@/contexts/UserContext";
+import { fetchList } from "@/api/UserClient";
 
 const AppBar = styled(MuiAppBar)(({ theme }) => ({
   zIndex: theme.zIndex.drawer + 1,
@@ -47,6 +60,8 @@ export default function Navbar() {
   const { dispatch } = useProductContext();
   const { dispatchProductType } = useProductTypeContext();
   const { dispatchPromotion } = usePromotionContext();
+  const { dispatchOrder } = useOrderContext();
+  const { dispatchUser } = useUserContext();
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = useState(null);
@@ -71,6 +86,17 @@ export default function Navbar() {
     }
   }, [dispatch]);
 
+  const fetchUsers = useCallback(async () => {
+    dispatch(loadingUsers());
+
+    const response = await fetchList();
+    if (response.success) {
+      dispatch(loadingManagerUserSuceess(response));
+    } else {
+      dispatch(setLoadingFail(response));
+    }
+  }, [dispatch]);
+
   const fetchPromotion = useCallback(async () => {
     dispatchPromotion(loadingPromotions());
 
@@ -81,6 +107,17 @@ export default function Navbar() {
       dispatchPromotion(loadingFailPromotion(response));
     }
   }, [dispatchPromotion]);
+
+  const fetchOrder = useCallback(async () => {
+    dispatchOrder(loadingOrders());
+
+    const response = await fetchAllOrder();
+    if (response.success) {
+      dispatchOrder(loadingManagerOrderSuceess(response));
+    } else {
+      dispatchOrder(loadingFailOrder(response));
+    }
+  }, [dispatchOrder]);
 
   const fetchProductTypes = useCallback(async () => {
     dispatchProductType(loadingProductTypes());
@@ -97,7 +134,15 @@ export default function Navbar() {
     fetchProducts();
     fetchProductTypes();
     fetchPromotion();
-  }, [fetchProductTypes, fetchProducts, fetchPromotion]);
+    fetchOrder();
+    fetchUsers();
+  }, [
+    fetchOrder,
+    fetchProductTypes,
+    fetchProducts,
+    fetchPromotion,
+    fetchUsers,
+  ]);
 
   const handleProfileMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);

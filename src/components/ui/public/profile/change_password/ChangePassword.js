@@ -21,14 +21,13 @@ import { storeUserInfo } from "@/api/Config";
 import AlertNotication from "@/components/AlertNotication";
 import { changePassword, updateProfile } from "@/api/Auth";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+import Swal from "sweetalert2";
 
 export default function ChangePassword() {
   const { state, dispatch } = useAuthContext();
   const { user } = state;
   const [success, setSuccess] = useState(false);
   const [modified, setModified] = useState(false);
-  const [gender, setGender] = useState(user?.gender ?? "FEMALE");
-  const [fullName, setFullName] = useState(user?.fullName);
   const [passwordOld, setPasswordOld] = useState("");
   const [passwordOldError, setPasswordOldError] = useState(false);
   const [passwordNew, setPasswordNew] = useState("");
@@ -37,11 +36,6 @@ export default function ChangePassword() {
   const [confirmPasswordError, setConfirmPasswordError] = useState(false);
   const [message, setMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-
-  useEffect(() => {
-    setGender(user?.gender);
-    setFullName(user?.fullName);
-  }, [user?.fullName, user?.gender]);
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
@@ -79,20 +73,17 @@ export default function ChangePassword() {
       return;
     }
     if (e.target.checkValidity()) {
-      changePassword({ newPassword: passwordNew, oldPassword: passwordOld })
-        .then(() => fetchUserByid(user.id))
-        .then((res) => {
-          dispatch(
-            setUser({
-              ...user,
-              fullName: res.data.fullName,
-              gender: res.data.gender,
-            })
-          );
-          storeUserInfo(res.data);
+      changePassword({
+        newPassword: passwordNew,
+        oldPassword: passwordOld,
+      }).then((res) => {
+        if (res.success) {
           setMessage("Đã cập nhật thành công!");
           setSuccess(true);
-        });
+        } else {
+          Swal.fire("Thông Báo!", `Hệ thống đang xảy ra lỗi!`, "warning");
+        }
+      });
     } else {
       setMessage("Vui lòng kiểm tra lại!");
       setSuccess(false);
@@ -146,7 +137,7 @@ export default function ChangePassword() {
                   }}
                   inputProps={{
                     pattern:
-                      "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=S+$).{8,20}$",
+                      "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=]).{8,20}$",
                   }}
                   color={passwordOldError ? "error" : "success"}
                   helperText={
@@ -167,7 +158,7 @@ export default function ChangePassword() {
                   error={passwordNewError}
                   inputProps={{
                     pattern:
-                      "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=S+$).{8,20}$",
+                      "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=]).{8,20}$",
                   }}
                   InputProps={{
                     endAdornment: (

@@ -13,7 +13,7 @@ import {
   Tab,
   Typography,
 } from "@mui/material";
-import { TabContext, TabList, TabPanel } from "@mui/lab";
+// import { TabContext, TabList, TabPanel } from "@mui/lab";
 import { useProductContext } from "@/contexts/ProductContext";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { updateCart, useCartContext } from "@/contexts/CartContext";
@@ -112,24 +112,22 @@ export default function ProductDetail({ pathParam }) {
       <Paper sx={{ padding: 3, marginBottom: 4 }} elevation={3}>
         <Grid container spacing={3} sx={{ padding: 2 }}>
           <Grid item xs={5}>
-            <Suspense fallback={<p>Loading...</p>}>
-              <Card>
-                <CardActionArea>
-                  <CardMedia
-                    component="img"
-                    height={20}
-                    width={20}
-                    style={{
-                      height: "20rem",
-                      objectFit: "contain",
-                      padding: 10,
-                    }}
-                    src={product?.image ?? "/product.jpg"}
-                    alt="hình Cún Con"
-                  />
-                </CardActionArea>
-              </Card>
-            </Suspense>
+            <Card>
+              <CardActionArea>
+                <CardMedia
+                  component="img"
+                  height={20}
+                  width={20}
+                  style={{
+                    height: "20rem",
+                    objectFit: "contain",
+                    padding: 10,
+                  }}
+                  src={product?.image ?? "/product.jpg"}
+                  alt="hình Cún Con"
+                />
+              </CardActionArea>
+            </Card>
           </Grid>
           <Grid item xs={7}>
             <Stack
@@ -139,11 +137,9 @@ export default function ProductDetail({ pathParam }) {
               height={"100%"}
               padding={2}
             >
-              <Suspense fallback={<p>Loading...</p>}>
-                <Typography variant="h5" gutterBottom>
-                  {product?.name}
-                </Typography>
-              </Suspense>
+              <Typography variant="h5" gutterBottom>
+                {product?.name}
+              </Typography>
               <Divider />
               <Box height={10} />
               <Stack direction="row" spacing={1} justifyContent={"flex-end"}>
@@ -227,7 +223,7 @@ export default function ProductDetail({ pathParam }) {
         </Grid>
       </Paper>
       <Box>
-        <TabContext value={value}>
+        {/* <TabContext value={value}>
           <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
             <TabList
               onChange={(e, newValue) => setValue(newValue)}
@@ -238,8 +234,8 @@ export default function ProductDetail({ pathParam }) {
             </TabList>
           </Box>
           <TabPanel value="1">{product?.description}</TabPanel>
-          <TabPanel value="2">{product?.info}</TabPanel>
-        </TabContext>
+          <TabPanel value="2">{product?.info ?? ""}</TabPanel>
+        </TabContext> */}
       </Box>
     </>
   );

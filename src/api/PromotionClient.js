@@ -112,7 +112,7 @@ export async function updatePromotionStatus(id, enable) {
 
 export async function validateCodePromotion(code) {
   try {
-    const response = await axios.patch(PROMOTION_URL + `/${code}/validate`, {
+    const response = await axios.patch(PROMOTION_URL + `/validate`, code, {
       headers: headersWithAuthorization(),
     });
     console.log("Response JSON: " + JSON.stringify(response.data));
