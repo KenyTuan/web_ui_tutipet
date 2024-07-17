@@ -37,7 +37,7 @@ const columns = [
     minWidth: 150,
     align: "center",
   },
-  { id: "action", label: "Xem/Xóa", minWidth: 100, align: "center" },
+  { id: "action", label: "Xóa", minWidth: 60, align: "center" },
 ];
 
 export default function OrderList() {

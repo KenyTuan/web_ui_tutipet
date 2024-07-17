@@ -1,5 +1,5 @@
 "use client";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Box,
   Typography,
@@ -34,14 +34,22 @@ export default function ShoppingCart() {
   const { state } = useAuthContext();
   const { isLoggedIn } = state;
 
-  console.log("cartList", cartList);
   const totalAmount = useMemo(() => {
     return cartList
       .filter((item) => item.checked == true)
       .reduce((total, item) => {
-        return total + item.product.price * item.quantity;
+        return total + item.product.discount * item.quantity;
       }, 0);
   }, [cartList]);
+
+  useEffect(() => {
+    const allChecked = cartList.filter((item) => item.checked == true);
+    if (allChecked.length === cartList.length) {
+      setCheckedAll(true);
+    } else {
+      setCheckedAll(false);
+    }
+  }, [cartList, dispatchCart]);
 
   const handleCheckedAll = () => {
     const allItemsChecked = cartList.every((item) => item.checked);
@@ -60,7 +68,9 @@ export default function ShoppingCart() {
   };
 
   const handleCheckOut = () => {
-    const checkedItems = cartList.filter((item) => item.checked);
+    const checkedItems = cartList
+      .filter((item) => item.checked)
+      .map((item) => item.id);
     if (checkedItems.length > 0) {
       const params = new URLSearchParams();
       const checkedItemsData = {

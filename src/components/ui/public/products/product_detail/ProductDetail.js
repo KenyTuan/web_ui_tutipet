@@ -1,5 +1,5 @@
 "use client";
-import React, { Suspense, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -13,7 +13,7 @@ import {
   Tab,
   Typography,
 } from "@mui/material";
-// import { TabContext, TabList, TabPanel } from "@mui/lab";
+import { TabContext, TabList, TabPanel } from "@mui/lab";
 import { useProductContext } from "@/contexts/ProductContext";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { updateCart, useCartContext } from "@/contexts/CartContext";
@@ -21,6 +21,7 @@ import { useRouter } from "next/navigation";
 import DiaLog from "@/components/DiaLog";
 import AlertNotication from "@/components/AlertNotication";
 import { addOrUpdate } from "@/api/CartClient";
+import { fetchByName } from "@/api/ProductClient";
 
 export default function ProductDetail({ pathParam }) {
   const router = useRouter();
@@ -34,11 +35,20 @@ export default function ProductDetail({ pathParam }) {
   const { state } = useAuthContext();
   const { isLoggedIn } = state;
   const { cartList } = cartState;
-  const { productList, page } = productState;
+  const [product, setProduct] = useState();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
-  const product = productList[page]?.data.filter(
-    (item) => item.name == decodeURIComponent(pathParam)
-  )[0];
+  useEffect(() => {
+    fetchByName(decodeURIComponent(pathParam)).then((res) => {
+      if (res.success) {
+        setLoading(false);
+        setProduct(res.data);
+      } else {
+        setError(true);
+      }
+    });
+  }, [pathParam]);
 
   console.log("product", product);
 
@@ -90,7 +100,11 @@ export default function ProductDetail({ pathParam }) {
     }
   };
 
-  if (!product) {
+  if (loading) {
+    return <Typography>loading....</Typography>;
+  }
+
+  if (error) {
     return <Typography>404 NOT FOUND!</Typography>;
   }
 
@@ -109,7 +123,7 @@ export default function ProductDetail({ pathParam }) {
         success={success}
         message={msg}
       />
-      <Paper sx={{ padding: 3, marginBottom: 4 }} elevation={3}>
+      <Paper sx={{ padding: 3, marginBottom: 4 }} elevation={2}>
         <Grid container spacing={3} sx={{ padding: 2 }}>
           <Grid item xs={5}>
             <Card>
@@ -156,25 +170,17 @@ export default function ProductDetail({ pathParam }) {
                     sx={{ fontWeight: 700 }}
                     marginRight={1}
                   >
-                    {product?.price.toLocaleString("en-US", {
-                      style: "decimal",
-                      minimumFractionDigits: 3,
-                      maximumFractionDigits: 3,
-                    })}{" "}
-                    VND
+                    {product.discount}.000 VND
                   </Typography>
-                  <Typography
-                    variant="h6"
-                    color="text.secondary"
-                    sx={{ textDecoration: "line-through", opacity: 0.6 }}
-                  >
-                    {product?.price.toLocaleString("en-US", {
-                      style: "decimal",
-                      minimumFractionDigits: 3,
-                      maximumFractionDigits: 3,
-                    })}{" "}
-                    VND
-                  </Typography>
+                  {product.discount != product.price && (
+                    <Typography
+                      variant="h6"
+                      color="text.secondary"
+                      sx={{ textDecoration: "line-through", opacity: 0.6 }}
+                    >
+                      {product?.price ?? 0}.000 VND
+                    </Typography>
+                  )}
                 </Box>
               </Stack>
 
@@ -223,7 +229,7 @@ export default function ProductDetail({ pathParam }) {
         </Grid>
       </Paper>
       <Box>
-        {/* <TabContext value={value}>
+        <TabContext value={value}>
           <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
             <TabList
               onChange={(e, newValue) => setValue(newValue)}
@@ -235,7 +241,7 @@ export default function ProductDetail({ pathParam }) {
           </Box>
           <TabPanel value="1">{product?.description}</TabPanel>
           <TabPanel value="2">{product?.info ?? ""}</TabPanel>
-        </TabContext> */}
+        </TabContext>
       </Box>
     </>
   );

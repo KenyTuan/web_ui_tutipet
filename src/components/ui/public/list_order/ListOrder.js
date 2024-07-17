@@ -32,7 +32,7 @@ export default function ListOrder() {
   };
 
   return (
-    <Container sx={{ background: "white" }}>
+    <Container>
       <Paper elevation={2}>
         <TabContext value={value}>
           <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
@@ -53,7 +53,7 @@ export default function ListOrder() {
           </TabPanel>
           <TabPanel value="2">
             {orderList
-              .filter((i) => i.status == "SUBMITED")
+              .filter((i) => i.status == "SUBMITTED")
               .map((item, index) => {
                 return <ItemTabOrder key={item.id} item={item} index={index} />;
               })}

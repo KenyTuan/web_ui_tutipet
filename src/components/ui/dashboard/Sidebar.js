@@ -73,11 +73,11 @@ const page = [
     icon: Category,
     href: "/dashboard/products",
   },
-  {
-    name: "Dịch Vụ",
-    icon: VolunteerActivism,
-    href: "/dashboard/services",
-  },
+  // {
+  //   name: "Dịch Vụ",
+  //   icon: VolunteerActivism,
+  //   href: "/dashboard/services",
+  // },
   {
     name: "Chương Trình",
     icon: Redeem,
@@ -93,16 +93,16 @@ const page = [
     icon: ShoppingCart,
     href: "/dashboard/orders",
   },
-  {
-    name: "Lịch Hẹn",
-    icon: CalendarMonth,
-    href: "/dashboard/appointments",
-  },
-  {
-    name: "Thiết Lập",
-    icon: Settings,
-    href: "/dashboard/setting",
-  },
+  // {
+  //   name: "Lịch Hẹn",
+  //   icon: CalendarMonth,
+  //   href: "/dashboard/appointments",
+  // },
+  // {
+  //   name: "Thiết Lập",
+  //   icon: Settings,
+  //   href: "/dashboard/setting",
+  // },
 ];
 
 const StyledDrawer = styled(Drawer, {

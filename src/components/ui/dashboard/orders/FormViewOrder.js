@@ -123,14 +123,52 @@ export default function FormViewOrder({ open, handleClose, item, index }) {
             </List>
           </Grid>
           <Grid item xs={4}>
-            <Stack display={"flex"} justifyContent={"right"}>
-              <Typography className="text-lg font-bold">
-                Tổng Thành Tiền:
-              </Typography>
-              <Typography className="text-xl font-bold text-end">
-                {item.total}.000 VND
-              </Typography>
-            </Stack>
+            <Grid container spacing={1}>
+              <Grid item xs={12}>
+                <Stack className="flex justify-between flex-row italic">
+                  <Typography fontSize={13}>Mã Sử Dụng:</Typography>
+                  <Typography fontSize={13}>
+                    {!!item.promotions ? item.promotions.code : ""}
+                  </Typography>
+                </Stack>
+              </Grid>
+              <Grid item xs={12}>
+                <Stack className="flex justify-between flex-row italic">
+                  <Typography fontSize={13}> Tổng Tiền Hàng: </Typography>
+                  <Typography fontSize={13}>{item.totalPro}.000 VND</Typography>
+                </Stack>
+              </Grid>
+              <Grid item xs={12}>
+                <Stack className="flex justify-between flex-row italic">
+                  <Typography fontSize={13}>Tổng Tiền Giảm</Typography>
+                  <Typography fontSize={13}>
+                    {!!item.promotions
+                      ? item.promotions.discountType == "PERCENTAGE"
+                        ? "-" +
+                          Math.round(
+                            (item.total * item.promotions.value) / 100
+                          ).toLocaleString("en-US", {
+                            style: "decimal",
+                            minimumFractionDigits: 3,
+                            maximumFractionDigits: 3,
+                          }) +
+                          "VND"
+                        : "-" + item.promotions.value + ".000 VND"
+                      : 0}
+                  </Typography>
+                </Stack>
+              </Grid>
+              <Grid item xs={12}>
+                <Stack display={"flex"} justifyContent={"right"}>
+                  <Typography className="text-lg font-bold">
+                    Tổng Thành Tiền:
+                  </Typography>
+                  <Typography className="text-xl font-bold text-end">
+                    {item.total}.000 VND
+                  </Typography>
+                </Stack>
+              </Grid>
+            </Grid>
             <Stack
               display={"flex"}
               justifyContent={"center"}

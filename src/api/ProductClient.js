@@ -49,6 +49,19 @@ export async function fetchByid(prodId) {
   }
 }
 
+export async function fetchByName(name) {
+  console.log("Fetching product for Id: " + name);
+  try {
+    const response = await axios.get(PRODUCT_URL + `/search/${name}`, {
+      headers: defaultHeaders(),
+    });
+    console.log("Response JSON: " + JSON.stringify(response.data));
+    return { success: true, data: response.data };
+  } catch (error) {
+    return handleError(error);
+  }
+}
+
 export async function addProduct(req) {
   console.log("Fetching product for Id: " + req);
   try {

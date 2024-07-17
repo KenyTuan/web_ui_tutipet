@@ -87,12 +87,7 @@ export default function ItemPromotion({ row, index }) {
           {row?.name}
         </TableCell>
         <TableCell key={"target"} align={"center"} className="border-r-2">
-          {row?.target === "ORDER" ? "Dành Cho Đơn Hàng" : "Dành Cho Sản Phẩm"}
-        </TableCell>
-        <TableCell key={"discountType"} align={"center"} className="border-r-2">
-          {row?.discountType === "PERCENTAGE"
-            ? "Theo Phần Trăm"
-            : "Theo Giá Tiền"}
+          {row?.target === "ORDER" ? "Đơn Hàng" : "Sản Phẩm"}
         </TableCell>
         <TableCell key={"value"} align={"center"} className="border-r-2">
           {row?.discountType !== "PERCENTAGE"
@@ -111,24 +106,6 @@ export default function ItemPromotion({ row, index }) {
           className="border-r-2"
         >
           {row?.products.length}
-        </TableCell>
-        <TableCell key={"status"} align={"center"} className="border-r-2">
-          {row.enableStatus == "ENABLED" ? (
-            <Button
-              variant="contained"
-              className="bg-green-500 hover:bg-green-600 text-sm"
-              onClick={() => handleChangeStatus(true)}
-            >
-              Hiện
-            </Button>
-          ) : (
-            <Button
-              variant="outlined"
-              onClick={() => handleChangeStatus(false)}
-            >
-              Ẩn
-            </Button>
-          )}
         </TableCell>
         <TableCell key={"action"} align="left" className="border-r-2">
           <Stack spacing={2} direction="row">

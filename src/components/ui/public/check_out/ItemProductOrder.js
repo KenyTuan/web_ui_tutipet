@@ -15,14 +15,15 @@ export default function ItemProductOrder({ item }) {
     <>
       <ListItem
         alignItems="center"
-        style={{ marginBottom: 2, borderWidth: 0.5, backgroundColor: "#FFF" }}
+        style={{ marginBottom: 8, borderWidth: 0.5, backgroundColor: "#FFF" }}
+        className="drop-shadow"
       >
         <ListItemAvatar>
           <Avatar
             sx={{ width: 100, height: 100 }}
             variant="rounded"
             alt="Remy Sharp"
-            src={item.product.image ?? "/product.jpg"}
+            src={item?.product?.image ?? "/product.jpg"}
           />
         </ListItemAvatar>
         <ListItemText>
@@ -39,7 +40,7 @@ export default function ItemProductOrder({ item }) {
                 fontStyle: "italic",
               }}
             >
-              {decodeURIComponent(escape(item.product?.name))}
+              {item?.product?.name}
             </Typography>
             <Stack
               display={"flex"}
@@ -48,7 +49,7 @@ export default function ItemProductOrder({ item }) {
               paddingX={2}
             >
               <Typography variant="body2" fontStyle={"italic"} fontWeight={100}>
-                x{item.quantity ?? 0}
+                x{item?.quantity ?? 0}
               </Typography>
             </Stack>
             <Stack
@@ -65,12 +66,7 @@ export default function ItemProductOrder({ item }) {
                 color="text.secondary"
                 sx={{ fontWeight: 700, textAlign: "end" }}
               >
-                {(item.product?.price ?? 0).toLocaleString("en-US", {
-                  style: "decimal",
-                  minimumFractionDigits: 3,
-                  maximumFractionDigits: 3,
-                })}{" "}
-                VND
+                {item?.product?.discount ?? 0}.000 VND
               </Typography>
             </Stack>
 
@@ -88,12 +84,7 @@ export default function ItemProductOrder({ item }) {
                 color="text.secondary"
                 sx={{ fontWeight: 700 }}
               >
-                {(item.quantity * item.product.price).toLocaleString("en-US", {
-                  style: "decimal",
-                  minimumFractionDigits: 3,
-                  maximumFractionDigits: 3,
-                })}{" "}
-                VND
+                {item?.quantity * item?.product?.discount}.000 VND
               </Typography>
             </Stack>
           </Box>

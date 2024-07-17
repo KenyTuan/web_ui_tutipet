@@ -18,7 +18,6 @@ import {
   usePromotionContext,
 } from "@/contexts/PromotionContext";
 import { fetchLiveAndUpcomingPromotions } from "@/api/PromotionClient";
-import dayjs from "dayjs";
 import {
   loadingFailOrder,
   loadingOrders,
@@ -31,6 +30,7 @@ const links = [
   { name: "Trang Chủ", href: "/" },
   { name: "Dịch Vụ", href: "/service_pet" },
   { name: "Sản Phẩm", href: "/products" },
+  { name: "Sự Kiện", href: "/events" },
   { name: "Bài Viết", href: "/blogs" },
 ];
 
@@ -48,9 +48,8 @@ export default function Header() {
   const { isLoggedIn, user } = state;
   const { cartList } = cartState;
   const { promotionState, dispatchPromotion } = usePromotionContext();
-  const { promotionList, loading, error } = promotionState;
-  const { orderState, dispatchOrder } = useOrderContext();
-  const { orderList } = orderState;
+  const { promotionList } = promotionState;
+  const { dispatchOrder } = useOrderContext();
 
   const fetchPromotion = useCallback(async () => {
     dispatchPromotion(loadingPromotions());
@@ -69,6 +68,9 @@ export default function Header() {
   };
 
   const fetchOrder = useCallback(async () => {
+    if (!isLoggedIn) {
+      return;
+    }
     dispatchOrder(loadingOrders());
 
     const response = await fetchAllOrderByToken();
@@ -77,7 +79,7 @@ export default function Header() {
     } else {
       dispatchOrder(loadingFailOrder(response.error));
     }
-  }, [dispatchOrder]);
+  }, [dispatchOrder, isLoggedIn]);
 
   console.log("user", user);
 
@@ -104,35 +106,6 @@ export default function Header() {
   return (
     <>
       <div className=" border rounded-b-2xl shadow-lg z-50 fixed top-0 left-0 right-0">
-        {promotionList.length !== 0 && (
-          <div className="bg-black p-1">
-            {promotionList
-              .filter((item) => item.target == "ORDER")
-              .map((item) => {
-                const discount =
-                  item?.discountType !== "PERCENTAGE"
-                    ? `${item?.value}.000 VND`
-                    : `${item?.value}%`;
-                return (
-                  <div key={item.id} className="flex flex-row">
-                    <p className="text-white font-bold">{`${item.name} `}</p>
-                    <p className="text-red-400 font-bold pl-1">{` giảm ${discount}`}</p>
-                    <p className="text-white font-bold pl-1">{`dành riêng cho đơn hàng của bạn. Chương trình diễn ra`}</p>
-                    <p className="text-red-400 font-bold pl-1">{`${dayjs(
-                      item.fromTime
-                    ).format(`DD/MM/YYYY lúc HH[h]mm`)}`}</p>
-                    <p className="text-white font-bold pl-1">{`và kết thúc`}</p>
-                    <p className="text-red-400 font-bold pl-1">{`${dayjs(
-                      item.toTime
-                    ).format(`DD/MM/YYYY lúc HH[h]mm`)}`}</p>
-                    <p className="text-white font-bold">{`. Nhập mã ngay: `}</p>
-                    <p className="text-red-400 font-bold pl-1">{item.code}</p>
-                  </div>
-                );
-              })}
-          </div>
-        )}
-
         <div className="flex justify-between p-2 py-4 bg-white">
           <div className="justify-center flex items-center px-4">
             <Link href={"/"}>

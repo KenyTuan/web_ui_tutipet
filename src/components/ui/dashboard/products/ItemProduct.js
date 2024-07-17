@@ -93,7 +93,7 @@ export default function ItemProduct({ row, index }) {
           {`${row?.price}.000 VND`}
         </TableCell>
         <TableCell key={"discount"} align={"center"} className="border-r-2">
-          {!row?.promotion ? `${row.price}.000 VND` : `${row.price}.000 VND`}
+          {row?.discount}.000 VND
         </TableCell>
         <TableCell key={"status"} align={"center"} className="border-r-2">
           {row.status == "ENABLED" ? (

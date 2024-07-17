@@ -171,12 +171,8 @@ export default function ItemCart({
                 sx={{ fontWeight: 700 }}
                 marginRight={1}
               >
-                {cartItem.product.price.toLocaleString("en-US", {
-                  style: "decimal",
-                  minimumFractionDigits: 3,
-                  maximumFractionDigits: 3,
-                })}{" "}
-                VND
+                {cartItem.product.discount}
+                .000 VND
               </Typography>
             </Box>
             <Divider orientation="vertical" flexItem />
@@ -205,15 +201,7 @@ export default function ItemCart({
                 sx={{ fontWeight: 700 }}
                 marginRight={1}
               >
-                {(cartItem.product.price * cartItem.quantity).toLocaleString(
-                  "en-US",
-                  {
-                    style: "decimal",
-                    minimumFractionDigits: 3,
-                    maximumFractionDigits: 3,
-                  }
-                )}{" "}
-                VND
+                {cartItem.product.discount * cartItem.quantity}.000 VND
               </Typography>
             </Box>
             <Divider orientation="vertical" flexItem />

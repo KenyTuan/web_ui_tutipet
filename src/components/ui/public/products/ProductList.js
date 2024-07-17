@@ -76,8 +76,8 @@ export default function ProductList() {
       {loading ? (
         <div className="text-lg font-semibold text-center">{"Loading..."}</div>
       ) : currentPageData.length != 0 ? (
-        <>
-          <div className="p-2 grid grid-cols-4 gap-6 mb-4">
+        <div className="min-h-[500px]">
+          <div className="px-8 grid grid-cols-4 gap-6 mb-4 ">
             <Products productList={currentPageData ? currentPageData : []} />
           </div>
           <div
@@ -94,7 +94,7 @@ export default function ProductList() {
               renderItem={(item) => <PaginationItem {...item} />}
             />
           </div>
-        </>
+        </div>
       ) : (
         <div className="w-9/12 text-2xl font-bold content-center text-center min-h-[500px]">
           Xin lỗi! Không thể tìm thấy sản phẩm

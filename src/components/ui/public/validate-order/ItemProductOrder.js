@@ -15,7 +15,7 @@ export default function ItemProductOrder({ item }) {
     <>
       <ListItem
         alignItems="center"
-        style={{ marginBottom: 2, borderWidth: 0.5, backgroundColor: "#FFF" }}
+        style={{ marginBottom: 8, borderWidth: 0.5, backgroundColor: "#FFF" }}
       >
         <ListItemAvatar>
           <Avatar
@@ -65,12 +65,7 @@ export default function ItemProductOrder({ item }) {
                 color="text.secondary"
                 sx={{ fontWeight: 700, textAlign: "end" }}
               >
-                {(item.product?.price ?? 0).toLocaleString("en-US", {
-                  style: "decimal",
-                  minimumFractionDigits: 3,
-                  maximumFractionDigits: 3,
-                })}{" "}
-                VND
+                {item?.product?.discount ?? 0}.000 VND
               </Typography>
             </Stack>
 
@@ -88,12 +83,7 @@ export default function ItemProductOrder({ item }) {
                 color="text.secondary"
                 sx={{ fontWeight: 700 }}
               >
-                {(item.quantity * item.product.price).toLocaleString("en-US", {
-                  style: "decimal",
-                  minimumFractionDigits: 3,
-                  maximumFractionDigits: 3,
-                })}{" "}
-                VND
+                {item?.quantity * item?.product?.discount}.000 VND
               </Typography>
             </Stack>
           </Box>

@@ -154,7 +154,7 @@ export default function ValidateOrder({ id }) {
                       <Typography
                         variant="body1"
                         sx={{ fontSize: 14, fontWeight: 700 }}
-                        onClick={() => router.replace("/")}
+                        onClick={() => (window.location.pathname = "/")}
                       >
                         Quay Về
                       </Typography>

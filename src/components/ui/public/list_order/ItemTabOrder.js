@@ -6,6 +6,8 @@ import {
 import {
   Box,
   Button,
+  Divider,
+  Grid,
   ListItem,
   ListItemText,
   Modal,
@@ -77,67 +79,67 @@ export default function ItemTabOrder({ item, index }) {
           />
         </Box>
       </Modal>
-      <Box marginBlockStart={2} onClick={handleOpenView}>
+      <Box marginBlockStart={2} className="drop-shadow-lg">
         <ListItem
           alignItems="center"
           style={{ marginBottom: 2, borderWidth: 0.5 }}
         >
           <ListItemText>
             <Box padding={1}>
-              <Typography
-                gutterBottom
-                variant="body1"
-                component="div"
-                style={{
-                  display: "-webkit-box",
-                  WebkitBoxOrient: "vertical",
-                  overflow: "hidden",
-                  WebkitLineClamp: 1,
-                  fontStyle: "italic",
-                }}
-              ></Typography>
-              <Stack
-                display={"flex"}
-                flexDirection={"row"}
-                justifyContent={"end"}
-              >
-                {item.status === "OPEN" && (
-                  <Button
-                    variant="contained"
-                    className="bg-red-500 hover:bg-red-600 text-xs font-bold "
-                    onClick={() => handleChangeStaus("PAID")}
+              <Grid container spacing={1}>
+                <Grid item xs={11}></Grid>
+                <Grid item xs={1}>
+                  <Stack
+                    display={"flex"}
+                    flexDirection={"row"}
+                    justifyContent={"end"}
                   >
-                    Hủy Đơn
-                  </Button>
-                )}
-              </Stack>
-              <Box height={5} />
-              <Stack
-                display={"flex"}
-                flexDirection={"row"}
-                justifyContent={"space-between"}
-              >
-                <Typography fontSize={20}>Mã Đơn: {item.code}</Typography>
-                <Typography fontSize={16} fontStyle={"italic"}>
-                  {dayjs(item.orderDate).format(`DD/MM/YYYY HH[h]mm`)}
-                </Typography>
-              </Stack>
-              <Stack
-                display={"flex"}
-                flexDirection={"row"}
-                justifyContent={"space-between"}
-              >
-                <Typography fontSize={16}>Số lượng</Typography>
-                <Typography fontSize={16}>x{quantity}</Typography>
-              </Stack>
-              <Stack
-                display={"flex"}
-                flexDirection={"row"}
-                justifyContent={"space-between"}
-              >
-                <Typography fontSize={16}>Thành Tiền</Typography>
-                <Typography fontSize={16}>{item.total}.000 VND</Typography>
-              </Stack>
+                    {item.status === "OPEN" && (
+                      <button
+                        className="bg-red-500 hover:bg-red-600 text-xs font-semibold p-3 rounded-md shadow-lg text-white mb-2"
+                        onClick={() => handleChangeStaus("PAID")}
+                      >
+                        Hủy Đơn
+                      </button>
+                    )}
+                  </Stack>
+                </Grid>
+                <Grid item xs={11}>
+                  <Box onClick={handleOpenView} className="cursor-pointer">
+                    <Stack
+                      display={"flex"}
+                      flexDirection={"row"}
+                      justifyContent={"space-between"}
+                    >
+                      <Typography fontSize={20} className="font-bold">
+                        Mã Đơn: {item.code}
+                      </Typography>
+                      <Typography fontSize={16} fontStyle={"italic"}>
+                        {dayjs(item.orderDate).format(`DD/MM/YYYY HH[h]mm`)}
+                      </Typography>
+                    </Stack>
+                    <Stack
+                      display={"flex"}
+                      flexDirection={"row"}
+                      justifyContent={"space-between"}
+                    >
+                      <Typography fontSize={16}>Số lượng</Typography>
+                      <Typography fontSize={16}>x{quantity}</Typography>
+                    </Stack>
+                    <Stack
+                      display={"flex"}
+                      flexDirection={"row"}
+                      justifyContent={"space-between"}
+                    >
+                      <Typography fontSize={16}>Thành Tiền</Typography>
+                      <Typography fontSize={16}>
+                        {item.total}.000 VND
+                      </Typography>
+                    </Stack>
+                  </Box>
+                </Grid>
+                <Grid item xs={1}></Grid>
+              </Grid>
             </Box>
           </ListItemText>
         </ListItem>

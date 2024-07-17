@@ -83,7 +83,13 @@ export default function ItemOrder({ row, index }) {
           />
         </Box>
       </Modal>
-      <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
+      <TableRow
+        hover
+        role="checkbox"
+        tabIndex={-1}
+        key={row.id}
+        onClick={handleOpenView}
+      >
         <TableCell key={"code"} align={"center"} className="border-r-2">
           {row?.code ?? ""}
         </TableCell>
@@ -157,15 +163,6 @@ export default function ItemOrder({ row, index }) {
 
         <TableCell key={"action"} align="left" className="border-r-2">
           <Stack spacing={2} direction="row">
-            <Visibility
-              style={{
-                fontSize: "20px",
-                color: "black",
-                cursor: "pointer",
-              }}
-              className="cursor-pointer"
-              onClick={handleOpenView}
-            />
             <Delete
               style={{
                 fontSize: "20px",

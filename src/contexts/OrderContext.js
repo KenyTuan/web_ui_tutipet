@@ -96,15 +96,49 @@ const orderReducer = (state, action) => {
         error: action.payload,
       };
     case LOADING_ORDERS_SUCCESS:
+      const updatedOrderList = action.payload.map((order) => {
+        const sumPricePro = order.productOrder.reduce(
+          (sum, item) => sum + item.product.discount * item.quantity,
+          0
+        );
+        const total = !order.promotions
+          ? sumPricePro
+          : order?.promotions?.discountType === "PERCENTAGE"
+          ? sumPricePro - (sumPricePro * order?.promotions?.value) / 100
+          : sumPricePro - order?.promotions?.value;
+        const roundedTotal = Math.round(total);
+        return {
+          ...order,
+          total: roundedTotal,
+          totalPro: sumPricePro,
+        };
+      });
       return {
         ...state,
-        orderList: action.payload,
+        orderList: updatedOrderList,
         loading: false,
       };
     case LOADING_ORDERS_ADMIN_SUCCESS:
+      const orderLoading = action.payload.map((order) => {
+        const sumPricePro = order.productOrder.reduce(
+          (sum, item) => sum + item.product.discount * item.quantity,
+          0
+        );
+        const total = !order.promotions
+          ? sumPricePro
+          : order?.promotions?.discountType === "PERCENTAGE"
+          ? sumPricePro - (sumPricePro * order?.promotions?.value) / 100
+          : sumPricePro - order?.promotions?.value;
+        const roundedTotal = Math.round(total);
+        return {
+          ...order,
+          total: roundedTotal,
+          totalPro: sumPricePro,
+        };
+      });
       return {
         ...state,
-        orderListAdmin: action.payload,
+        orderListAdmin: orderLoading,
         loading: true,
       };
     case ADD_ORDER_USER:
@@ -135,7 +169,21 @@ const orderReducer = (state, action) => {
     case UPDATE_ORDER:
       const { updateOrder, index } = action.payload;
       const newOrderListAdmin = [...state.orderListAdmin];
-      newOrderListAdmin[index] = updateOrder;
+      const sumPricePro = updateOrder.productOrder.reduce(
+        (sum, item) => sum + item.product.discount * item.quantity,
+        0
+      );
+      const total = !updateOrder.promotions
+        ? sumPricePro
+        : updateOrder?.promotions?.discountType === "PERCENTAGE"
+        ? sumPricePro - (sumPricePro * updateOrder?.promotions?.value) / 100
+        : sumPricePro - updateOrder?.promotions?.value;
+      const roundedTotal = Math.round(total);
+      newOrderListAdmin[index] = {
+        ...updateOrder,
+        total: roundedTotal,
+        totalPro: sumPricePro,
+      };
       return {
         ...state,
         orderListAdmin: newOrderListAdmin,

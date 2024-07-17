@@ -9,9 +9,8 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import axios from "axios";
 import { useRouter } from "next/navigation";
-import React from "react";
+import React, { useEffect } from "react";
 import Swal from "sweetalert2";
 import dayjs from "dayjs";
 import { fetchOrderByid, validateOrder } from "@/api/OrderClient";
@@ -53,24 +52,23 @@ export default function ValidPayment() {
   const { dispatchOrder } = useOrderContext();
 
   const handleClickPayment = async () => {
-    validateOrder({ code: vnp_TxnRef }).then((res) => {
-      if (res.success) {
-        fetchOrderByid(res.data.id).then((res) => {
-          if (res.success) {
-            dispatchOrder(acctionUpdateOrderUser(res));
-            route.replace("/products");
-            return;
-          } else {
-            Swal.fire("Thông Báo!", `Hệ thống đang xảy ra lỗi!`, "warning");
-            return;
-          }
-        });
-      } else {
-        Swal.fire("Thông Báo!", `Hệ thống đang xảy ra lỗi!`, "warning");
-        return;
-      }
-    });
+    route.replace("/list_order");
   };
+
+  useEffect(() => {
+    if (vnp_ResponseCode === "00") {
+      validateOrder({ code: vnp_TxnRef }).then((res) => {
+        if (res.success) {
+          fetchOrderByid(res.data.id).then((res) => {
+            if (res.success) {
+              dispatchOrder(acctionUpdateOrderUser(res));
+              return;
+            }
+          });
+        }
+      });
+    }
+  }, [dispatchOrder, route, vnp_ResponseCode, vnp_TxnRef]);
 
   const handleClickClose = async () => {
     route.replace("/shopping_cart");

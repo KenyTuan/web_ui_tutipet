@@ -14,18 +14,16 @@ import { usePromotionContext } from "@/contexts/PromotionContext";
 const columns = [
   { id: "code", label: "Mã Giảm", minWidth: 150, align: "center" },
   { id: "name", label: "Tiêu Đề", minWidth: 350, align: "center" },
-  { id: "target", label: "Loại", minWidth: 170, align: "center" },
-  { id: "discountType", label: "Loại Giảm", minWidth: 170, align: "center" },
+  { id: "target", label: "Dành Cho", minWidth: 170, align: "center" },
   { id: "value", label: "Giá Trị", minWidth: 250, align: "center" },
   { id: "fromTime", label: "Ngày Bắt Đầu", minWidth: 300, align: "center" },
   { id: "toTime", label: "Ngày Kết Thúc", minWidth: 300, align: "center" },
   {
     id: "lengthProducts",
     label: "Tổng Số Sản Phẩm",
-    minWidth: 250,
+    minWidth: 180,
     align: "center",
   },
-  { id: "status", label: "Trạng Thái", minWidth: 50, align: "center" },
   { id: "action", label: "Sửa/Xóa", minWidth: 50, align: "center" },
 ];
 
@@ -82,11 +80,6 @@ export default function PromotionList() {
         <Divider />
         <Box height={10} />
         <Stack direction="row" spacing={2} className="mx-4">
-          <Typography
-            variant="h6"
-            component="div"
-            sx={{ flexGrow: 1 }}
-          ></Typography>
           <Button
             variant="contained"
             endIcon={<AddCircle />}
@@ -104,15 +97,17 @@ export default function PromotionList() {
               <ItemPromotion row={row} key={row.id} index={index} />
             ))}
         </Board>
-        <TablePagination
-          rowsPerPageOptions={[5, 10, 25, 100]}
-          component="div"
-          count={promotionListAdmin.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
+        <Box className="flex justify-start">
+          <TablePagination
+            rowsPerPageOptions={[5, 10, 25, 100]}
+            component="div"
+            count={promotionListAdmin.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
+        </Box>
       </Paper>
     </>
   );

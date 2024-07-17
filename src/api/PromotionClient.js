@@ -1,4 +1,4 @@
-import { PROMOTION_URL, headersWithAuthorization } from "@/api/Config";
+import { PROMOTION_URL, defaultHeaders, headersWithAuthorization } from "@/api/Config";
 import axios from "axios";
 
 export async function fetchAllPromotion() {
@@ -37,7 +37,7 @@ export async function fetchListPromotion(
 export async function fetchLiveAndUpcomingPromotions() {
   try {
     const response = await axios.get(PROMOTION_URL + `/live-and-upcoming`, {
-      headers: headersWithAuthorization(),
+      headers: defaultHeaders(),
     });
     console.log("Response JSON: " + JSON.stringify(response.data));
     return { success: true, data: response.data };

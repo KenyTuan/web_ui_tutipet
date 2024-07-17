@@ -12,7 +12,11 @@ import {
 } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { addOrUpdate } from "@/api/CartClient";
-import { updateCart, useCartContext } from "@/contexts/CartContext";
+import {
+  toggleCheckItem,
+  updateCart,
+  useCartContext,
+} from "@/contexts/CartContext";
 import { useAuthContext } from "@/contexts/AuthContext";
 import DiaLog from "@/components/DiaLog";
 import AlertNotication from "@/components/AlertNotication";
@@ -75,17 +79,48 @@ export default function CardProduct({ product }) {
     }
   };
 
-  // const buy = async () => {
-  //   const isLoggedIn = checkLogin();
-  //   if (isLoggedIn && product?.id) {
-  //     const res = await callAddItemApi();
-  //     if (res && res.success) {
-  //       navigate("/cart");
-  //     } else {
-  //       setMsg(res && typeof res === "string" ? res : res.error.message);
-  //     }
-  //   }
-  // };
+  const buy = async () => {
+    const isLoggedIn = checkLogin();
+    if (isLoggedIn && product?.id) {
+      const res = await callAddItemApi();
+      if (res && res.success) {
+        dispatchCart(updateCart(res));
+
+        const checkedItems = cartList.filter(
+          (item) => item.product.id == product.id
+        );
+        if (checkedItems.length === 0) {
+          const params = new URLSearchParams();
+          const checkedItemsData = {
+            checkedItems: [res.data],
+          };
+          const jsonString = JSON.stringify(checkedItemsData);
+
+          const encodedData = btoa(unescape(encodeURIComponent(jsonString)));
+          params.append("checkedItems", encodedData);
+          router.push(`/check_out?${params.toString()}`);
+        }
+
+        console.log("checkedItems", checkedItems);
+        console.log("cartList", cartList);
+
+        if (checkedItems.length > 0) {
+          const params = new URLSearchParams();
+          const checkedItemsData = {
+            checkedItems: checkedItems,
+          };
+          const jsonString = JSON.stringify(checkedItemsData);
+
+          const encodedData = btoa(unescape(encodeURIComponent(jsonString)));
+          params.append("checkedItems", encodedData);
+          router.push(`/check_out?${params.toString()}`);
+        }
+      } else {
+        setMsg("Thêm Sản Phẩm Vào Giỏ Hàng Thất Bại");
+        setSeverity("error");
+      }
+    }
+  };
 
   return (
     <>
@@ -104,7 +139,7 @@ export default function CardProduct({ product }) {
       />
       <Card className="drop-shadow-xl">
         <CardActionArea
-          className="h-[300px]"
+          className="h-[250px]"
           onClick={() => {
             router.push(`/products/${encodeURIComponent(product.name)}`);
           }}
@@ -113,38 +148,37 @@ export default function CardProduct({ product }) {
             src={product?.image ?? "/product.jpg"}
             component="img"
             sx={{
-              paddingY: 2,
               paddingX: 8,
               objectFit: "cover",
-              height: "200px",
+              height: "150px",
             }}
             alt="hình cún con"
           />
 
           <CardContent>
             <Box className="line-clamp-1 min-h-3">
-              <Typography
-                variant="subtitle1"
-                component="div"
-                sx={{ lineHeight: "1.5em" }}
-              >
+              <p className="font-normal text-base italic">
                 {product?.name ?? "Ten san pham"}
-              </Typography>
+              </p>
             </Box>
 
             <Box className="flex flex-row justify-end items-center">
               <Typography
                 variant="body1"
                 color="text.secondary"
-                sx={{ fontWeight: 700 }}
+                className="font-bold mr-1"
               >
-                {(product?.price ?? 0).toLocaleString("en-US", {
-                  style: "decimal",
-                  minimumFractionDigits: 3,
-                  maximumFractionDigits: 3,
-                })}{" "}
-                VND
+                {product.discount}.000 VND
               </Typography>
+              {product.discount != product.price && (
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  className="line-through font-bold"
+                >
+                  {product?.price ?? 0}.000 VND
+                </Typography>
+              )}
             </Box>
           </CardContent>
         </CardActionArea>
@@ -179,6 +213,7 @@ export default function CardProduct({ product }) {
               letterSpacing: "0.01071em",
               fontSize: "12px",
             }}
+            onClick={buy}
           >
             Mua Ngay
           </Button>
